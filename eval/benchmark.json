@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-09-05",
+  "test_set_size": 44,
+  "rationale": "Qwen2.5 14B Instruct is shipped. It reads the schema guide closely enough to pick the right intent and carry filters through a follow-up, which is where the smaller models fail, and it holds that accuracy while staying well inside the twenty billion parameter limit. Llama 3.1 8B is faster and cheaper but loses roughly a fifth of its intent accuracy on reconciliation and comparison questions. Mistral Nemo sits between the two on accuracy and is the slowest of the three. Because every number is computed in DuckDB and checked against allowed_numbers, a weaker model produces a clarification or a refusal rather than a wrong figure, so the choice trades coverage against latency and never against correctness.",
+  "models": [
+    {
+      "model": "qwen2.5-14b-instruct",
+      "params_b": 14,
+      "shipped": true,
+      "accuracy": {
+        "intent": 0.95,
+        "filters": 0.91,
+        "computation": 1.0,
+        "grounding": 1.0,
+        "clarification": 0.86,
+        "overall": 0.94,
+        "by_category": {"A": 1.0, "B": 0.95, "C": 0.93, "D": 0.9, "E": 1.0, "F": 0.88, "G": 0.9, "H": 0.86}
+      },
+      "median_latency_ms": 1180,
+      "tokens_per_question": 742
+    },
+    {
+      "model": "mistral-nemo-12b-instruct",
+      "params_b": 12,
+      "shipped": false,
+      "accuracy": {
+        "intent": 0.86,
+        "filters": 0.8,
+        "computation": 1.0,
+        "grounding": 1.0,
+        "clarification": 0.71,
+        "overall": 0.87,
+        "by_category": {"A": 1.0, "B": 0.9, "C": 0.86, "D": 0.8, "E": 1.0, "F": 0.75, "G": 0.8, "H": 0.71}
+      },
+      "median_latency_ms": 1640,
+      "tokens_per_question": 810
+    },
+    {
+      "model": "llama-3.1-8b-instruct",
+      "params_b": 8,
+      "shipped": false,
+      "accuracy": {
+        "intent": 0.77,
+        "filters": 0.7,
+        "computation": 1.0,
+        "grounding": 1.0,
+        "clarification": 0.57,
+        "overall": 0.81,
+        "by_category": {"A": 0.95, "B": 0.85, "C": 0.79, "D": 0.7, "E": 1.0, "F": 0.63, "G": 0.7, "H": 0.57}
+      },
+      "median_latency_ms": 820,
+      "tokens_per_question": 690
+    }
+  ]
+}

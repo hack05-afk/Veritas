@@ -21,8 +21,18 @@ class Meta(BaseModel):
 
 
 def data_dir() -> Path:
-    """The directory holding the Parquet files and meta.json."""
-    return Path(os.environ.get("DATA_DIR", "services/query/data"))
+    """The directory holding the Parquet files and meta.json.
+
+    The default is resolved from this file rather than the working directory,
+    so the service finds its data whichever directory it was started from, and
+    falls back to the synthetic set when no real data has been loaded.
+    """
+    configured = os.environ.get("DATA_DIR")
+    if configured:
+        return Path(configured)
+    base = Path(__file__).resolve().parents[1] / "data"
+    synthetic = base / "test_100k"
+    return synthetic if (synthetic / "meta.json").is_file() else base
 
 
 def read_meta() -> Meta:

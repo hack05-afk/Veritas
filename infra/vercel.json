@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build --workspace apps/web",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "env": {
+    "LLM_PROVIDER": "openai_compatible",
+    "QUERY_SERVICE_URL": "@veritas_query_service_url"
+  }
+}

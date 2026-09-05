@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["generated_at", "test_set_size", "models", "rationale"],
+  "additionalProperties": false,
+  "properties": {
+    "generated_at": {"type": "string"},
+    "test_set_size": {"type": "integer", "minimum": 40},
+    "rationale": {"type": "string", "minLength": 80},
+    "models": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["model", "params_b", "shipped", "accuracy", "median_latency_ms", "tokens_per_question"],
+        "properties": {
+          "model": {"type": "string"},
+          "params_b": {"type": "number", "maximum": 20},
+          "shipped": {"type": "boolean"},
+          "accuracy": {
+            "type": "object", "additionalProperties": false,
+            "required": ["intent", "filters", "computation", "grounding", "clarification", "overall"],
+            "properties": {
+              "intent": {"type": "number", "minimum": 0, "maximum": 1},
+              "filters": {"type": "number", "minimum": 0, "maximum": 1},
+              "computation": {"type": "number", "minimum": 0, "maximum": 1},
+              "grounding": {"type": "number", "minimum": 0, "maximum": 1},
+              "clarification": {"type": "number", "minimum": 0, "maximum": 1},
+              "overall": {"type": "number", "minimum": 0, "maximum": 1},
+              "by_category": {"type": "object", "additionalProperties": {"type": "number"}}
+            }
+          },
+          "median_latency_ms": {"type": "number", "minimum": 0},
+          "tokens_per_question": {"type": "number", "minimum": 0}
+        }
+      }
+    }
+  }
+}

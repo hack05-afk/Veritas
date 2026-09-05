@@ -2,9 +2,10 @@
 
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Button, Card, Chip, type Stage, type StageState } from "@veritas/ui";
+import { Button, Card, type Stage, type StageState } from "@veritas/ui";
 
 import { ClarificationCard, RefusalCard } from "@/components/conversation/Cards";
+import { PulseStrip } from "@/components/pulse/PulseStrip";
 import { Theatre, type TheatreState } from "@/components/theatre/Theatre";
 import { TruthPanel } from "@/components/truth/TruthPanel";
 import type { EvidenceRecord } from "@/components/evidence/EvidenceDrawer";
@@ -40,6 +41,7 @@ function Workspace() {
   const [answer, setAnswer] = React.useState<Answer>({ pkg: null, records: [], filters: {} });
   const [question, setQuestion] = React.useState("");
   const [asking, setAsking] = React.useState(false);
+  const [entity, setEntity] = React.useState("ent-0001");
 
   const apply = React.useCallback((event: TheatreEvent) => {
     setTheatre((current) => {
@@ -103,7 +105,8 @@ function Workspace() {
         <div className="flex items-center gap-4">
           <span className="text-base font-semibold tracking-tight">Veritas</span>
           <label className="sr-only" htmlFor="entity">Entity</label>
-          <select id="entity" name="entity"
+          <select id="entity" name="entity" value={entity}
+            onChange={(event) => setEntity(event.target.value)}
             className="rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-1.5 text-sm">
             <option>ent-0001</option><option>ent-0002</option>
             <option>ent-0003</option><option>ent-0004</option>
@@ -112,9 +115,7 @@ function Workspace() {
         <Button variant="secondary">Call TBX</Button>
       </header>
 
-      <div data-pulse-strip className="flex gap-2 overflow-x-auto border-b border-[hsl(var(--border))] px-6 py-3">
-        <Chip>Ledger Pulse arrives with the live data</Chip>
-      </div>
+      <PulseStrip entityId={entity} onAsk={(text) => { setQuestion(text); ask(text); }} />
 
       <div className="flex flex-1">
         <aside data-conversation

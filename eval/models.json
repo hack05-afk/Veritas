@@ -1,5 +1,16 @@
 [
-  {"model": "qwen2.5-14b-instruct", "params_b": 14},
-  {"model": "mistral-nemo-12b-instruct", "params_b": 12},
-  {"model": "llama-3.1-8b-instruct", "params_b": 8}
+  {
+    "model": "openai/gpt-oss-20b",
+    "params_b": 20,
+    "note": "Hosted model ids change. Check every id in this file against the provider's current model list before a benchmark run; a decommissioned id fails the whole candidate."
+  },
+  {
+    "model": "llama-3.1-8b-instant",
+    "params_b": 8
+  },
+  {
+    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "params_b": 17,
+    "note": "Replaces gemma2-9b-it, which is decommissioned on Groq. Seventeen billion active parameters."
+  }
 ]

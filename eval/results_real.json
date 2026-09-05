@@ -6,7 +6,7 @@
     "grounding": 1.0,
     "clarification": 1.0
   },
-  "median_latency_ms": 45.6,
+  "median_latency_ms": 46.1,
   "by_category": {
     "A": {
       "intent": 1.0,
@@ -90,7 +90,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b918,14,11,561.17, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 46.01%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 75.6
+      "latency_ms": 56.3
     },
     {
       "id": "A2",
@@ -108,7 +108,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b924,26,57,213.49, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 21.64%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 50.3
+      "latency_ms": 50.9
     },
     {
       "id": "A3",
@@ -126,7 +126,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b910,13,40,501.91, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 100%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 44.6
+      "latency_ms": 43.3
     },
     {
       "id": "A4",
@@ -144,7 +144,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b970,40,64,585.11, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 44.94%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 47.0
+      "latency_ms": 46.1
     },
     {
       "id": "A5",
@@ -162,7 +162,7 @@
       "interpretation_text": "debits only, bank charges excluded, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b92,02,77,56,922.59, read as debits only, bank charges excluded, all accounts of the entity, calendar period. Read another way it moves by 46.98%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 45.9
+      "latency_ms": 46.4
     },
     {
       "id": "A6",
@@ -180,7 +180,7 @@
       "interpretation_text": "net of credits, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b939,48,69,510.27, read as net of credits, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 9.84%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 45.6
+      "latency_ms": 46.4
     },
     {
       "id": "A7",
@@ -198,7 +198,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b932,90,37,828.61, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 25.1%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 45.0
+      "latency_ms": 46.1
     },
     {
       "id": "A8",
@@ -216,7 +216,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b973,16,21,823.34, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 46.03%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 46.7
+      "latency_ms": 47.7
     },
     {
       "id": "B1",
@@ -234,7 +234,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b97,67,04,495.48, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 12.3%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 68.1
+      "latency_ms": 72.7
     },
     {
       "id": "B2",
@@ -252,7 +252,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b92,25,10,187.82, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 18.1%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 68.8
+      "latency_ms": 69.5
     },
     {
       "id": "B3",
@@ -270,7 +270,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b91,33,44,661.96, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 23.4%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 67.9
+      "latency_ms": 66.3
     },
     {
       "id": "B4",
@@ -288,7 +288,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b94,20,09,250.19, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 20.11%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 66.7
+      "latency_ms": 102.2
     },
     {
       "id": "B5",
@@ -306,7 +306,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b948,31,79,433.63, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 19.15%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 68.6
+      "latency_ms": 82.1
     },
     {
       "id": "B6",
@@ -324,7 +324,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b93,74,98,300.88, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 22.36%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 106.4
+      "latency_ms": 61.8
     },
     {
       "id": "B7",
@@ -342,7 +342,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b91,19,28,454.02, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 39.29%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 80.9
+      "latency_ms": 63.1
     },
     {
       "id": "C1",
@@ -360,7 +360,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b995,26,59,085.01, read as debits only, bank charges included, all accounts of the entity, calendar period. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 42.9
+      "latency_ms": 39.0
     },
     {
       "id": "C2",
@@ -378,7 +378,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b933,67,52,313.07, read as debits only, bank charges included, all accounts of the entity, calendar period. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 46.3
+      "latency_ms": 41.9
     },
     {
       "id": "C3",
@@ -396,7 +396,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b9-3,22,52,45,312.37, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 8.3
+      "latency_ms": 7.2
     },
     {
       "id": "C4",
@@ -414,7 +414,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b9-81,65,36,786.92, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 7.8
+      "latency_ms": 7.0
     },
     {
       "id": "C5",
@@ -432,7 +432,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b97,44,31,641.12, read as debits only, bank charges included, all accounts of the entity, calendar period. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 44.0
+      "latency_ms": 43.9
     },
     {
       "id": "C6",
@@ -450,7 +450,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b942,20,05,405.31, read as debits only, bank charges included, all accounts of the entity, calendar period. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 31.4
+      "latency_ms": 31.5
     },
     {
       "id": "D1",
@@ -468,7 +468,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b912,500, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 12.5
+      "latency_ms": 10.3
     },
     {
       "id": "D2",
@@ -486,7 +486,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b91,05,250.25, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 9.7
+      "latency_ms": 9.6
     },
     {
       "id": "D3",
@@ -504,7 +504,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is 3,183, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "count",
-      "latency_ms": 41.4
+      "latency_ms": 42.5
     },
     {
       "id": "D4",
@@ -522,7 +522,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b964,205, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 84.6
+      "latency_ms": 80.3
     },
     {
       "id": "D5",
@@ -540,7 +540,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is 398, read as debits only, bank charges included, all accounts of the entity, calendar period. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "count",
-      "latency_ms": 66.9
+      "latency_ms": 65.5
     },
     {
       "id": "E1",
@@ -558,7 +558,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b91,17,577.91, read as debits only, bank charges included, all accounts of the entity. Read another way it moves by 100%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 44.1
+      "latency_ms": 38.1
     },
     {
       "id": "E2",
@@ -576,7 +576,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b91,17,577.91, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 33.3
+      "latency_ms": 28.4
     },
     {
       "id": "E3",
@@ -594,7 +594,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b90, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 38.9
+      "latency_ms": 37.2
     },
     {
       "id": "F1",
@@ -612,7 +612,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b918,14,11,561.17, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 6.13%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 58.2
+      "latency_ms": 59.7
     },
     {
       "id": "F2",
@@ -630,7 +630,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b918,14,11,561.17, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 6.13%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 57.6
+      "latency_ms": 57.3
     },
     {
       "id": "F3",
@@ -648,7 +648,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b918,14,11,561.17, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 6.13%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 58.3
+      "latency_ms": 56.7
     },
     {
       "id": "F4",
@@ -666,7 +666,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b970,40,64,585.11, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 4.51%, so it is stable.",
       "answer_unit": "INR",
-      "latency_ms": 55.1
+      "latency_ms": 54.0
     },
     {
       "id": "G1",
@@ -683,7 +683,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "That cannot be derived from this data without guessing. Ask for spend, receipts, counterparties, balances or a reference number instead.",
       "answer_unit": "none",
-      "latency_ms": 6.0
+      "latency_ms": 5.0
     },
     {
       "id": "G2",
@@ -700,7 +700,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "That cannot be derived from this data without guessing. Ask for spend, receipts, counterparties, balances or a reference number instead.",
       "answer_unit": "none",
-      "latency_ms": 5.9
+      "latency_ms": 7.1
     },
     {
       "id": "G3",
@@ -717,7 +717,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "That cannot be derived from this data without guessing. Ask for spend, receipts, counterparties, balances or a reference number instead.",
       "answer_unit": "none",
-      "latency_ms": 4.9
+      "latency_ms": 4.4
     },
     {
       "id": "G4",
@@ -734,7 +734,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "That cannot be derived from this data without guessing. Ask for spend, receipts, counterparties, balances or a reference number instead.",
       "answer_unit": "none",
-      "latency_ms": 4.0
+      "latency_ms": 4.5
     },
     {
       "id": "G5",
@@ -751,7 +751,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "That cannot be derived from this data without guessing. Ask for spend, receipts, counterparties, balances or a reference number instead.",
       "answer_unit": "none",
-      "latency_ms": 4.0
+      "latency_ms": 4.6
     },
     {
       "id": "G6",
@@ -785,7 +785,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "More than one counterparty starts with SELECTION. Which did you mean? Pick a reading and the number follows.",
       "answer_unit": "none",
-      "latency_ms": 4.2
+      "latency_ms": 3.9
     },
     {
       "id": "G8",
@@ -802,7 +802,7 @@
       "interpretation_text": "No number was computed",
       "explanation": "There is nothing earlier in this conversation to compare with. Which period did you mean? Pick a reading and the number follows.",
       "answer_unit": "none",
-      "latency_ms": 5.1
+      "latency_ms": 4.0
     },
     {
       "id": "H1",
@@ -820,7 +820,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b918,14,11,561.17, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 46.01%, so it is fragile.",
       "answer_unit": "INR",
-      "latency_ms": 47.2
+      "latency_ms": 47.4
     },
     {
       "id": "H2",
@@ -838,7 +838,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity, calendar period",
       "explanation": "The answer is \u20b97,67,04,495.48, read as debits only, bank charges included, all accounts of the entity, calendar period. Read another way it moves by 12.3%, so it is sensitive.",
       "answer_unit": "INR",
-      "latency_ms": 73.4
+      "latency_ms": 67.8
     },
     {
       "id": "H3",
@@ -856,7 +856,7 @@
       "interpretation_text": "debits only, bank charges included, all accounts of the entity",
       "explanation": "The answer is \u20b912,500, read as debits only, bank charges included, all accounts of the entity. Only one reading of this question applies, so the number does not move.",
       "answer_unit": "INR",
-      "latency_ms": 11.9
+      "latency_ms": 12.9
     }
   ]
 }

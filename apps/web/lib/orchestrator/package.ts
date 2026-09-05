@@ -28,7 +28,7 @@ const SPEND_INTENTS = new Set([
 const COUNT_INTENTS = new Set(["unreferenced", "reconciliation_transfers"]);
 
 /** Intents that answer with money whatever metric the plan asked for. */
-const ALWAYS_MONEY = new Set(["balance", "reconciliation_balance", "lookup_reference"]);
+const ALWAYS_MONEY = new Set(["reconciliation_balance", "lookup_reference"]);
 
 /** INR or count, decided by what the intent actually computes. */
 export function answerUnit(plan: QueryPlan): "INR" | "count" {

@@ -15,8 +15,15 @@ def build(plan: dict) -> tuple[str, list]:
         params.extend(account_ids)
     clause = f"WHERE {' AND '.join(where)}" if where else ""
 
+    # "How many accounts do we have" is a balance question about the same rows,
+    # asked for as a count. Answering it with the sum of the balances puts a
+    # figure in front of the reader that is not what they asked for.
+    counting = plan.get("metric") == "count"
+
     if plan.get("group_by") == "account":
         return (f"SELECT account_id AS key, round(available_balance, 2) AS value, 1 AS count "
                 f"FROM accounts {clause} ORDER BY value DESC"), params
-    return (f"SELECT coalesce(entity_id, 'all') AS key, round(sum(available_balance), 2) AS value, "
+
+    value = "count(*)" if counting else "round(sum(available_balance), 2)"
+    return (f"SELECT coalesce(entity_id, 'all') AS key, {value} AS value, "
             f"count(*) AS count FROM accounts {clause} GROUP BY key ORDER BY value DESC"), params

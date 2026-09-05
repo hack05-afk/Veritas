@@ -17,7 +17,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 24,26,57,213.49
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -57,7 +57,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 32,90,37,828.61
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -76,7 +76,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 7,67,04,495.48
 
-**Verdict** Stable
+**Verdict** Sensitive
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -84,7 +84,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 2,25,10,187.82
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -92,7 +92,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 1,33,44,661.96
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -100,7 +100,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 4,20,09,250.19
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -108,7 +108,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 48,31,79,433.63
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -116,7 +116,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 3,74,98,300.88
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -124,7 +124,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 1,19,28,454.02
 
-**Verdict** Stable
+**Verdict** Fragile
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 
@@ -366,7 +366,7 @@ synthetic seed 42 ledger. Account numbers and UTRs are masked everywhere.
 
 **Answer** Rs 7,67,04,495.48
 
-**Verdict** Stable
+**Verdict** Sensitive
 
 **Read as** debits only, bank charges included, all accounts of the entity, calendar period
 

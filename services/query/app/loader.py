@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 from typing import Iterator
@@ -187,6 +188,8 @@ def load(data: Path) -> dict:
     if rows == 0:
         raise ValueError(f"no transactions found in {data}")
 
+    rollup_rows = build_rollups(data)
+
     accounts.to_parquet(data / "accounts.parquet", index=False)
     banks.to_parquet(data / "banks.parquet", index=False)
 
@@ -197,9 +200,47 @@ def load(data: Path) -> dict:
         "min_date": min_date.strftime("%Y-%m-%d"),
         "max_date": max_date.strftime("%Y-%m-%d"),
         "resolver_coverage": round(decoded / rows, 4),
+        "rollup_rows": rollup_rows,
     }
     (data / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     return meta
+
+
+ROLLUP_SQL = """
+COPY (
+    SELECT strftime(date_trunc('month', transaction_date), '%Y-%m-01') AS month,
+           entity_id,
+           account_id,
+           transaction_type,
+           channel,
+           coalesce(counterparty_canonical, 'UNKNOWN') AS counterparty,
+           coalesce(counterparty_family, 'UNKNOWN') AS counterparty_family,
+           sum(transaction_amount) AS total,
+           count(*) AS n
+    FROM read_parquet('{source}')
+    GROUP BY ALL
+) TO '{target}' (FORMAT PARQUET, COMPRESSION ZSTD)
+"""
+
+
+def build_rollups(data: Path) -> int:
+    """Pre-aggregate the ledger by month, account, channel and counterparty.
+
+    Aggregate questions are answered from this table rather than from the rows,
+    so the cost of "what did we spend last month" stops growing with the number
+    of transactions. It is built once per load, in the database rather than in
+    Python, so it never holds the ledger in memory.
+    """
+    import duckdb
+
+    source = str((data / "transactions.parquet").resolve()).replace("'", "''")
+    target = str((data / "rollups.parquet").resolve()).replace("'", "''")
+    connection = duckdb.connect(database=":memory:")
+    connection.execute(f"SET memory_limit='{os.environ.get('DUCKDB_MEMORY_LIMIT', '1GB')}'")
+    connection.execute(ROLLUP_SQL.format(source=source, target=target))
+    rows = connection.execute(f"SELECT count(*) FROM read_parquet('{target}')").fetchone()[0]
+    connection.close()
+    return int(rows)
 
 
 def main() -> None:
@@ -208,6 +249,7 @@ def main() -> None:
     args = parser.parse_args()
     meta = load(args.data)
     print(f"loaded {meta['rows']} rows, resolver coverage {meta['resolver_coverage']}")
+    print(f"rollup rows: {meta['rollup_rows']}")
 
 
 if __name__ == "__main__":

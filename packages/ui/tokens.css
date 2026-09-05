@@ -30,6 +30,25 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
+  /* Type scale. The product is read at arm's length on a laptop, so the base
+     is 16px rather than the 14px a dense dashboard would use. */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-answer: 2.5rem;
+
+  /* Spacing rhythm. Everything is a multiple of 4px. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
   --motion-fast: 120ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
@@ -41,7 +60,11 @@ body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+
 
 [data-numeric], [data-mono] {
   font-family: var(--font-mono);

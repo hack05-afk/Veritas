@@ -20,6 +20,10 @@ VIEWS = {
     "banks": "banks.parquet",
 }
 
+# Written by the loader. A data directory from an older load will not have it,
+# and the service falls back to reading the rows.
+OPTIONAL_VIEWS = {"rollups": "rollups.parquet"}
+
 
 class DataNotLoaded(RuntimeError):
     """Raised when the Parquet files are missing, so the caller can answer 503."""
@@ -33,10 +37,17 @@ def _connect(directory: str, memory_limit: str) -> duckdb.DuckDBPyConnection:
         raise DataNotLoaded(f"missing in {base}: {', '.join(missing)}. Run python -m app.loader --data {base}")
     con = duckdb.connect(database=":memory:")
     con.execute(f"SET memory_limit='{memory_limit}'")
-    for view, filename in VIEWS.items():
+    for view, filename in {**VIEWS, **OPTIONAL_VIEWS}.items():
+        if not (base / filename).is_file():
+            continue
         path = str((base / filename).resolve()).replace("'", "''")
         con.execute(f"CREATE OR REPLACE VIEW {view} AS SELECT * FROM read_parquet('{path}')")
     return con
+
+
+def has_rollups() -> bool:
+    """Whether the pre-aggregated table is available for this dataset."""
+    return (data_dir() / OPTIONAL_VIEWS["rollups"]).is_file()
 
 
 def connection() -> duckdb.DuckDBPyConnection:

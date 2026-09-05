@@ -42,7 +42,7 @@ export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, on
   const spokenFor = React.useRef<string | null>(null);
 
   const providerHeader = React.useCallback(
-    () => (fakeProvider ? { "x-tbx-provider": "fake" } : {}),
+    () => (fakeProvider ? { "x-veritas-provider": "fake" } : {}),
     [fakeProvider],
   );
 

@@ -37,7 +37,7 @@ export default function Kit() {
 
       <Section title="Button">
         <Button variant="primary">Ask</Button>
-        <Button variant="secondary">Call TBX</Button>
+        <Button variant="secondary">Call Veritas</Button>
         <Button variant="ghost">Export CSV</Button>
         <Button variant="primary" disabled>Disabled</Button>
       </Section>

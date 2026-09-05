@@ -27,9 +27,17 @@ def data_dir() -> Path:
     so the service finds its data whichever directory it was started from, and
     falls back to the synthetic set when no real data has been loaded.
     """
+    repo_root = Path(__file__).resolve().parents[3]
     configured = os.environ.get("DATA_DIR")
     if configured:
-        return Path(configured)
+        chosen = Path(configured)
+        if not chosen.is_absolute():
+            chosen = repo_root / chosen
+        # A directory holding only the synthetic set is a common mistake in .env.
+        nested = chosen / "test_100k"
+        if not (chosen / "meta.json").is_file() and (nested / "meta.json").is_file():
+            return nested
+        return chosen
     base = Path(__file__).resolve().parents[1] / "data"
     synthetic = base / "test_100k"
     return synthetic if (synthetic / "meta.json").is_file() else base

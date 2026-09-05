@@ -11,6 +11,7 @@ import { Card, CountUp, DataTable, Tabs, VerdictChip, type Column } from "@verit
 
 import { EvidenceDrawer, type EvidenceRecord } from "@/components/evidence/EvidenceDrawer";
 import { download, toCsv } from "@/lib/csv";
+import { downloadReport } from "@/lib/pdf";
 import type { VerifiedResultPackage } from "@/lib/orchestrator/types";
 
 const BREAKDOWN: Column[] = [
@@ -36,7 +37,7 @@ export function TruthPanel({ pkg, sql, records, filters }: {
   return (
     <Card data-truth-panel className="mt-6">
       <div className="flex flex-wrap items-baseline gap-3">
-        <span data-answer-value className="text-[28px] font-semibold tracking-tight">
+        <span data-answer-value className="text-answer font-semibold tracking-tight">
           <CountUp value={pkg.answer_value ?? 0} decimals />
         </span>
         {pkg.period_label ? (
@@ -45,10 +46,10 @@ export function TruthPanel({ pkg, sql, records, filters }: {
         <VerdictChip status={pkg.verdict.status} />
       </div>
 
-      <p data-interpretation className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+      <p data-interpretation className="mt-3 text-sm text-[hsl(var(--muted-foreground))]">
         {pkg.interpretation_text}
       </p>
-      {pkg.explanation ? <p className="mt-3 text-sm">{pkg.explanation}</p> : null}
+      {pkg.explanation ? <p className="mt-4 text-base leading-relaxed">{pkg.explanation}</p> : null}
 
       {pkg.anomalies.length ? (
         <p className="mt-3 rounded-[var(--radius)] bg-[hsl(var(--warning-soft))] px-3 py-2 text-sm text-[hsl(var(--warning-text))]">
@@ -57,7 +58,7 @@ export function TruthPanel({ pkg, sql, records, filters }: {
       ) : null}
 
       {pkg.alternatives.length ? (
-        <ul className="mt-4 space-y-1">
+        <ul className="mt-5 space-y-2">
           {pkg.alternatives.map((alternative) => (
             <li key={`${alternative.axis}-${alternative.reading}`} data-alternative className="text-sm">
               Read as <strong className="font-medium">{alternative.reading}</strong> it is{" "}
@@ -72,7 +73,7 @@ export function TruthPanel({ pkg, sql, records, filters }: {
         </p>
       )}
 
-      <div className="mt-6">
+      <div className="mt-7">
         <Tabs tabs={[
           { label: "Breakdown", content: pkg.breakdown.length
               ? <DataTable columns={BREAKDOWN} rows={pkg.breakdown as unknown as Record<string, unknown>[]} />
@@ -86,10 +87,16 @@ export function TruthPanel({ pkg, sql, records, filters }: {
         ]} />
       </div>
 
-      <button type="button" onClick={exportCsv}
-        className="mt-4 rounded-[var(--radius)] border border-[hsl(var(--border))] px-3 py-2 text-sm hover:bg-[hsl(var(--brand-soft))]">
-        Export CSV
-      </button>
+      <div className="mt-5 flex flex-wrap gap-2">
+        <button type="button" onClick={exportCsv}
+          className="rounded-[var(--radius)] border border-[hsl(var(--border))] px-4 py-2 text-sm hover:bg-[hsl(var(--brand-soft))]">
+          Export CSV
+        </button>
+        <button type="button" onClick={() => downloadReport(pkg, sql, records)}
+          className="rounded-[var(--radius)] border border-[hsl(var(--border))] px-4 py-2 text-sm hover:bg-[hsl(var(--brand-soft))]">
+          Download PDF report
+        </button>
+      </div>
     </Card>
   );
 }

@@ -36,7 +36,10 @@ const FONT_VARS = `:root{--font-sans:var(--font-sans-loaded),"Plus Jakarta Sans"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    // THEME_SCRIPT stamps data-theme on this element before React hydrates, so
+    // the server markup and the live DOM differ here by design. The warning is
+    // suppressed for this element only; children still reconcile normally.
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: FONT_VARS }} />

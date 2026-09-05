@@ -19,6 +19,10 @@ const nextConfig = {
     "/api/replay": ["../../fixtures/events/**"],
     "/api/voice/speak": ["../../fixtures/voice/**"],
     "/api/voice/transcribe": ["../../fixtures/voice/**"],
+    // The benchmark page reads its table at request time, so the file has to
+    // travel with the bundle or the route is a 500 on a host that ships only
+    // what tracing found.
+    "/benchmark": ["../../eval/benchmark.json"],
   },
 };
 

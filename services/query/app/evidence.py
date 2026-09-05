@@ -11,14 +11,19 @@ from collections import OrderedDict
 
 from app import db
 from app.masking import mask, mask_narration
-from app.queries import lookup_reference
+from app.queries import lookup_reference, reconciliation_transfers, unreferenced
 from app.queries.common import clause, conditions
 
 PAGE_SIZE = 50
 CACHE_LIMIT = 200
 
 # Intents whose answer comes from the account table, so there are no rows behind it.
-NO_ROW_EVIDENCE = {"balance"}
+NO_ROW_EVIDENCE = {"balance", "reconciliation_balance"}
+
+# Unmatched transfers are read largest first: that is the order a person works
+# through a reconciliation in. Everything else reads newest first.
+ORDER_BY = {"reconciliation_transfers": "t.transaction_amount DESC, t.transaction_id"}
+DEFAULT_ORDER = "t.transaction_date DESC, t.transaction_id"
 
 _plans: OrderedDict[str, dict] = OrderedDict()
 
@@ -28,7 +33,7 @@ SELECT t.transaction_id, t.transaction_date, t.transaction_type, t.transaction_a
        t.utr_number, t.description, t.confidence
 FROM ({inner}) t
 LEFT JOIN accounts a ON a.account_id = t.account_id
-ORDER BY t.transaction_date DESC, t.transaction_id
+ORDER BY {order}
 LIMIT ? OFFSET ?
 """
 
@@ -51,38 +56,43 @@ def recall(ref: str) -> dict | None:
     return plan
 
 
-def _matching(plan: dict) -> tuple[str, list]:
-    """The WHERE fragment selecting the rows the answer was computed from."""
+def _inner(plan: dict) -> tuple[str, list]:
+    """A SELECT over the rows the answer was computed from."""
     intent = plan.get("intent")
+    if intent == "reconciliation_transfers":
+        return reconciliation_transfers.unmatched_sql(plan)
+
     transfers_only = intent in ("spend_by_counterparty", "counterparty_ranking")
-    kind = {"receipts_total": "credit", "lookup_reference": "both"}.get(intent)
+    kind = {"receipts_total": "credit", "lookup_reference": "both", "unreferenced": "both"}.get(intent)
     if kind is None:
         kind = "both" if (plan.get("interpretation") or {}).get("spend") == "net" else "debit"
+
     if intent == "lookup_reference":
         where, params = conditions(plan)
         column, forms = lookup_reference.reference_condition(plan)
         where.append(f"{column} IN ({', '.join('?' * len(forms))})")
         params.extend(forms)
-        return clause(where), params
-    where, params = conditions(plan, transaction_type=kind, transfers_only=transfers_only)
-    return clause(where), params
+    else:
+        where, params = conditions(plan, transaction_type=kind, transfers_only=transfers_only)
+        if intent == "unreferenced":
+            where.append(unreferenced.NO_REFERENCE)
+    return f"SELECT * FROM transactions {clause(where)}", params
 
 
 def total(plan: dict) -> int:
     """How many rows sit behind this answer."""
     if plan.get("intent") in NO_ROW_EVIDENCE:
         return 0
-    where, params = _matching(plan)
-    return int(db.rows(f"SELECT count(*) FROM transactions {where}", params)[0][0])
+    inner, params = _inner(plan)
+    return int(db.rows(f"SELECT count(*) FROM ({inner})", params)[0][0])
 
 
 def page(plan: dict, number: int = 1) -> list[dict]:
     """One page of masked records."""
     if plan.get("intent") in NO_ROW_EVIDENCE:
         return []
-    where, params = _matching(plan)
-    inner = f"SELECT * FROM transactions {where}"
-    sql = RECORD_SQL.format(inner=inner)
+    inner, params = _inner(plan)
+    sql = RECORD_SQL.format(inner=inner, order=ORDER_BY.get(plan.get("intent"), DEFAULT_ORDER))
     rows = db.rows(sql, params + [PAGE_SIZE, max(0, (number - 1) * PAGE_SIZE)])
     return [_record(row) for row in rows]
 

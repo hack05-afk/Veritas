@@ -6,7 +6,7 @@ from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Query
 
-from app import db, evidence, queries
+from app import alternatives, anomaly, compute, db, evidence, pulse, queries
 from app.catalog import catalog
 from app.meta import read_meta
 from app.resolver import explain
@@ -42,36 +42,24 @@ def run_query(plan: Any = Body(default=None)) -> dict:
 
     started = time.perf_counter()
     try:
-        sql, params = queries.build(plan)
-        rows = db.rows(sql, params)
+        result = compute.primary(plan)
+        readings = alternatives.compute_all(plan) if plan.get("run_alternatives") else []
+        spikes = anomaly.counterparty_spikes(plan) if plan.get("run_anomaly") else []
     except db.DataNotLoaded as missing:
         raise HTTPException(status_code=503, detail=str(missing)) from missing
     except (KeyError, ValueError) as bad:
         raise HTTPException(status_code=422, detail=[str(bad)]) from bad
 
-    grouped = queries.is_grouped(plan)
-    limit = int(plan.get("limit") or 10)
-    result_rows = [{"key": str(key), "value": round(float(value or 0), 2), "count": int(count)}
-                   for key, value, count in rows]
-    if plan["intent"] == "period_compare":
-        result_rows = result_rows[:max(2, limit)]
-
-    if grouped:
-        primary_value = result_rows[0]["value"] if plan["intent"] == "period_compare" \
-            else round(sum(row["value"] for row in result_rows), 2)
-    else:
-        primary_value = result_rows[0]["value"] if result_rows else 0.0
-        result_rows = []
-
     ref = evidence.remember(plan)
+    rows_behind = evidence.total(plan)
     meta = read_meta()
     return {
-        "primary": {"value": primary_value, "rows": result_rows,
-                    "row_count": evidence.total(plan), "sql": " ".join(sql.split())},
-        "alternatives": [],
+        "primary": {"value": result["value"], "rows": result["rows"],
+                    "row_count": rows_behind, "sql": result["sql"]},
+        "alternatives": readings,
         "evidence": {"ref": ref, "page": 1, "page_size": evidence.PAGE_SIZE,
-                     "total": evidence.total(plan), "records": evidence.page(plan, 1)},
-        "anomalies": [],
+                     "total": rows_behind, "records": evidence.page(plan, 1)},
+        "anomalies": spikes,
         "resolver_samples": _samples(plan),
         "data_bounds": {"min_date": meta.min_date, "max_date": meta.max_date},
         "timing_ms": round((time.perf_counter() - started) * 1000, 2),
@@ -103,5 +91,14 @@ def get_catalog() -> dict:
     """Entities, masked accounts, banks, channels, top counterparties and the data bounds."""
     try:
         return catalog()
+    except db.DataNotLoaded as missing:
+        raise HTTPException(status_code=503, detail=str(missing)) from missing
+
+
+@app.get("/pulse")
+def get_pulse(entity_id: str | None = None) -> dict:
+    """Five things worth knowing about this entity, cached after the first call."""
+    try:
+        return pulse.pulse(entity_id)
     except db.DataNotLoaded as missing:
         raise HTTPException(status_code=503, detail=str(missing)) from missing

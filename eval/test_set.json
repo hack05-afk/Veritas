@@ -1,0 +1,643 @@
+[
+  {
+    "id": "A1",
+    "category": "A",
+    "question": "What did we spend last month?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "entity_id": "ent-0001",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 181411561.17
+  },
+  {
+    "id": "A2",
+    "category": "A",
+    "question": "How much went out through NEFT in June?",
+    "expected_intent": "spend_by_channel",
+    "truth": {
+      "op": "spend",
+      "channels": [
+        "NEFT"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 242657213.49
+  },
+  {
+    "id": "A3",
+    "category": "A",
+    "question": "What were bank charges last quarter?",
+    "expected_intent": "spend_by_channel",
+    "truth": {
+      "op": "spend",
+      "channels": [
+        "Charges"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      }
+    },
+    "expected_value": 101340501.91
+  },
+  {
+    "id": "A4",
+    "category": "A",
+    "question": "What did we spend in May?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-05-01",
+        "end": "2026-05-31",
+        "label": "May 2026"
+      }
+    },
+    "expected_value": 704064585.11
+  },
+  {
+    "id": "A5",
+    "category": "A",
+    "question": "What did we spend last quarter excluding bank charges?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "exclude_charges": true
+    },
+    "expected_value": 2027756922.59
+  },
+  {
+    "id": "A6",
+    "category": "A",
+    "question": "What did we spend last month net of receipts?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      },
+      "net": true
+    },
+    "expected_value": 394869510.27
+  },
+  {
+    "id": "A7",
+    "category": "A",
+    "question": "How much went out through UPI last quarter?",
+    "expected_intent": "spend_by_channel",
+    "truth": {
+      "op": "spend",
+      "channels": [
+        "UPI"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      }
+    },
+    "expected_value": 329037828.61
+  },
+  {
+    "id": "A8",
+    "category": "A",
+    "question": "What did we spend last month across every entity?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 731621823.34
+  },
+  {
+    "id": "B1",
+    "category": "B",
+    "question": "Who were our top five counterparties last quarter?",
+    "expected_intent": "counterparty_ranking",
+    "truth": {
+      "op": "counterparty_top_sum",
+      "entity_id": "ent-0001",
+      "transfers_only": true,
+      "channels": [
+        "NEFT",
+        "IMPS",
+        "UPI",
+        "RTGS",
+        "FT"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "limit": 5
+    },
+    "expected_value": 76704495.48
+  },
+  {
+    "id": "B2",
+    "category": "B",
+    "question": "Which counterparty received the most last month?",
+    "expected_intent": "counterparty_ranking",
+    "truth": {
+      "op": "counterparty_top_sum",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      },
+      "limit": 1
+    },
+    "expected_value": 22510187.82
+  },
+  {
+    "id": "B3",
+    "category": "B",
+    "question": "How much did SELECTION ELECTRONICS receive in June?",
+    "expected_intent": "spend_by_counterparty",
+    "truth": {
+      "op": "counterparty_spend",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      },
+      "counterparty": "SELECTION ELECTRONICS",
+      "match": "exact"
+    },
+    "expected_value": 13344661.96
+  },
+  {
+    "id": "B4",
+    "category": "B",
+    "question": "How much did the SELECTION family receive last quarter?",
+    "expected_intent": "spend_by_counterparty",
+    "truth": {
+      "op": "counterparty_spend",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "counterparty": "SELECTION ELECTRONICS",
+      "match": "family"
+    },
+    "expected_value": 42009250.19
+  },
+  {
+    "id": "B5",
+    "category": "B",
+    "question": "Who are the top ten payees this quarter?",
+    "expected_intent": "counterparty_ranking",
+    "truth": {
+      "op": "counterparty_top_sum",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "limit": 10
+    },
+    "expected_value": 483179433.63
+  },
+  {
+    "id": "B6",
+    "category": "B",
+    "question": "How much did HARIOM PLASTICS receive last quarter?",
+    "expected_intent": "spend_by_counterparty",
+    "truth": {
+      "op": "counterparty_spend",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "counterparty": "HARIOM PLASTICS",
+      "match": "exact"
+    },
+    "expected_value": 37498300.88
+  },
+  {
+    "id": "B7",
+    "category": "B",
+    "question": "How much did SELECTION MALIGAI receive last month?",
+    "expected_intent": "spend_by_counterparty",
+    "truth": {
+      "op": "counterparty_spend",
+      "transfers_only": true,
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      },
+      "counterparty": "SELECTION MALIGAI",
+      "match": "exact"
+    },
+    "expected_value": 11928454.02
+  },
+  {
+    "id": "C1",
+    "category": "C",
+    "question": "What did we receive last quarter?",
+    "expected_intent": "receipts_total",
+    "truth": {
+      "op": "receipts",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      }
+    },
+    "expected_value": 952659085.01
+  },
+  {
+    "id": "C2",
+    "category": "C",
+    "question": "What did we receive last month?",
+    "expected_intent": "receipts_total",
+    "truth": {
+      "op": "receipts",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 336752313.07
+  },
+  {
+    "id": "C3",
+    "category": "C",
+    "question": "What is the balance across all our accounts?",
+    "expected_intent": "balance",
+    "truth": {
+      "op": "balance_total"
+    },
+    "expected_value": -3225245312.37
+  },
+  {
+    "id": "C4",
+    "category": "C",
+    "question": "What is the balance for entity ent-0001?",
+    "expected_intent": "balance",
+    "truth": {
+      "op": "balance_total",
+      "entity_id": "ent-0001"
+    },
+    "expected_value": -816536786.92
+  },
+  {
+    "id": "C5",
+    "category": "C",
+    "question": "What did entity ent-0002 receive last month?",
+    "expected_intent": "receipts_total",
+    "truth": {
+      "op": "receipts",
+      "entity_id": "ent-0002",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 74431641.12
+  },
+  {
+    "id": "C6",
+    "category": "C",
+    "question": "What did we receive through disbursements last quarter?",
+    "expected_intent": "receipts_total",
+    "truth": {
+      "op": "receipts",
+      "channels": [
+        "Disbursement"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      }
+    },
+    "expected_value": 422005405.31
+  },
+  {
+    "id": "D1",
+    "category": "D",
+    "question": "Does our balance match the transactions?",
+    "expected_intent": "reconciliation_balance",
+    "truth": {
+      "op": "balance_gap_total",
+      "entity_id": "ent-0001"
+    },
+    "expected_value": 12500.0
+  },
+  {
+    "id": "D2",
+    "category": "D",
+    "question": "Which accounts do not reconcile?",
+    "expected_intent": "reconciliation_balance",
+    "truth": {
+      "op": "balance_gap_total"
+    },
+    "expected_value": 105250.25
+  },
+  {
+    "id": "D3",
+    "category": "D",
+    "question": "How many transactions have no reference number or UTR?",
+    "expected_intent": "unreferenced",
+    "truth": {
+      "op": "unreferenced_count"
+    },
+    "expected_value": 3183.0
+  },
+  {
+    "id": "D4",
+    "category": "D",
+    "question": "List the unmatched internal transfers",
+    "expected_intent": "reconciliation_transfers",
+    "truth": {
+      "op": "unmatched_transfers_count"
+    },
+    "expected_value": 64205.0
+  },
+  {
+    "id": "D5",
+    "category": "D",
+    "question": "How many transactions have no reference number in June?",
+    "expected_intent": "unreferenced",
+    "truth": {
+      "op": "unreferenced_count",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 398.0
+  },
+  {
+    "id": "E1",
+    "category": "E",
+    "question": "Find the transaction with reference 7797183088",
+    "expected_intent": "lookup_reference",
+    "truth": {
+      "op": "lookup_sum",
+      "column": "reference_id",
+      "value": "7797183088"
+    },
+    "expected_value": 117577.91
+  },
+  {
+    "id": "E2",
+    "category": "E",
+    "question": "Show the transaction with UTR M4oT370J61rntwKK",
+    "expected_intent": "lookup_reference",
+    "truth": {
+      "op": "lookup_sum",
+      "column": "utr",
+      "value": "M4oT370J61rntwKK"
+    },
+    "expected_value": 117577.91
+  },
+  {
+    "id": "E3",
+    "category": "E",
+    "question": "Find the transaction with reference 1715499972",
+    "expected_intent": "lookup_reference",
+    "truth": {
+      "op": "lookup_sum",
+      "column": "reference_id",
+      "value": "1715499972"
+    },
+    "expected_value": 0.0
+  },
+  {
+    "id": "F1",
+    "category": "F",
+    "question": "Compare that with the month before",
+    "expected_intent": "period_compare",
+    "truth": {
+      "op": "spend",
+      "entity_id": "ent-0001",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "context": "What did we spend last month?",
+    "expected_value": 181411561.17
+  },
+  {
+    "id": "F2",
+    "category": "F",
+    "question": "How does that compare with the month before?",
+    "expected_intent": "period_compare",
+    "truth": {
+      "op": "spend",
+      "entity_id": "ent-0001",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "context": "What did we spend last month?",
+    "expected_value": 181411561.17
+  },
+  {
+    "id": "F3",
+    "category": "F",
+    "question": "And how does that compare with the month before it?",
+    "expected_intent": "period_compare",
+    "truth": {
+      "op": "spend",
+      "entity_id": "ent-0001",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "context": "What did we spend last month?",
+    "expected_value": 181411561.17
+  },
+  {
+    "id": "F4",
+    "category": "F",
+    "question": "Compare that month with the one before",
+    "expected_intent": "period_compare",
+    "truth": {
+      "op": "spend",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-05-01",
+        "end": "2026-05-31",
+        "label": "May 2026"
+      }
+    },
+    "context": "What did we spend in May?",
+    "expected_value": 704064585.11
+  },
+  {
+    "id": "G1",
+    "category": "G",
+    "question": "How much did we spend on the marketing category last month?",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G2",
+    "category": "G",
+    "question": "How much did we pay ACME CORPORATION last quarter?",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G3",
+    "category": "G",
+    "question": "What is our profit margin this year?",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G4",
+    "category": "G",
+    "question": "Show me the customer email addresses",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G5",
+    "category": "G",
+    "question": "Which vendor is the most reliable?",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G6",
+    "category": "G",
+    "question": "What is the weather in Mumbai?",
+    "expected_intent": "refusal",
+    "expected_behaviour": "refuse"
+  },
+  {
+    "id": "G7",
+    "category": "G",
+    "question": "How much did we pay SELECTION last quarter?",
+    "expected_intent": "clarification",
+    "expected_behaviour": "clarify"
+  },
+  {
+    "id": "G8",
+    "category": "G",
+    "question": "Compare that with the month before",
+    "expected_intent": "clarification",
+    "expected_behaviour": "clarify"
+  },
+  {
+    "id": "H1",
+    "category": "H",
+    "question": "What did we spend last month?",
+    "expected_intent": "spend_total",
+    "truth": {
+      "op": "spend",
+      "entity_id": "ent-0001",
+      "period": {
+        "kind": "calendar",
+        "start": "2026-06-01",
+        "end": "2026-06-30",
+        "label": "June 2026"
+      }
+    },
+    "expected_value": 181411561.17
+  },
+  {
+    "id": "H2",
+    "category": "H",
+    "question": "Who were our top five counterparties last quarter?",
+    "expected_intent": "counterparty_ranking",
+    "truth": {
+      "op": "counterparty_top_sum",
+      "entity_id": "ent-0001",
+      "transfers_only": true,
+      "channels": [
+        "NEFT",
+        "IMPS",
+        "UPI",
+        "RTGS",
+        "FT"
+      ],
+      "period": {
+        "kind": "calendar",
+        "start": "2026-04-01",
+        "end": "2026-06-30",
+        "label": "April to June 2026"
+      },
+      "limit": 5
+    },
+    "expected_value": 76704495.48
+  },
+  {
+    "id": "H3",
+    "category": "H",
+    "question": "Does our balance match the transactions?",
+    "expected_intent": "reconciliation_balance",
+    "truth": {
+      "op": "balance_gap_total",
+      "entity_id": "ent-0001"
+    },
+    "expected_value": 12500.0
+  }
+]

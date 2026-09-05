@@ -1,0 +1,5 @@
+[
+  {"model": "qwen2.5-14b-instruct", "params_b": 14},
+  {"model": "mistral-nemo-12b-instruct", "params_b": 12},
+  {"model": "llama-3.1-8b-instruct", "params_b": 8}
+]

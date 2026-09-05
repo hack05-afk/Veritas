@@ -14,13 +14,52 @@ const READING_TEXT: Record<string, string> = {
   entity: "all accounts of the entity", account: "the named accounts only",
 };
 
+/**
+ * The intents the spend and charges readings mean anything for. This is the
+ * same set the query service flips those axes on, so the sentence describes
+ * the readings that were actually available.
+ */
+const SPEND_INTENTS = new Set([
+  "spend_total", "spend_by_channel", "spend_by_counterparty",
+  "counterparty_ranking", "period_compare",
+]);
+
+/** Intents whose number is a row count rather than an amount. */
+const COUNT_INTENTS = new Set(["unreferenced", "reconciliation_transfers"]);
+
+/** Intents that answer with money whatever metric the plan asked for. */
+const ALWAYS_MONEY = new Set(["balance", "reconciliation_balance", "lookup_reference"]);
+
+/** INR or count, decided by what the intent actually computes. */
+export function answerUnit(plan: QueryPlan): "INR" | "count" {
+  const intent = plan.intent ?? "";
+  if (COUNT_INTENTS.has(intent)) return "count";
+  if (ALWAYS_MONEY.has(intent)) return "INR";
+  return plan.metric === "count" ? "count" : "INR";
+}
+
+/**
+ * The reading the number was computed under, in words.
+ *
+ * Only the axes that apply to this intent are named. Telling someone their
+ * account balance was read as "debits only, bank charges included" describes a
+ * choice that was never made and reads as boilerplate.
+ */
 export function interpretationText(plan: QueryPlan): string {
   const interpretation = plan.interpretation ?? {};
-  const parts = [
-    READING_TEXT[interpretation.spend ?? "debits"],
-    READING_TEXT[interpretation.charges ?? "include"],
-    READING_TEXT[interpretation.scope ?? "entity"],
-  ];
+  const intent = plan.intent ?? "";
+  const parts: string[] = [];
+
+  if (SPEND_INTENTS.has(intent)) {
+    parts.push(READING_TEXT[interpretation.spend ?? "debits"]);
+    parts.push(READING_TEXT[interpretation.charges ?? "include"]);
+  }
+  parts.push(READING_TEXT[interpretation.scope ?? "entity"]);
+  if (intent === "lookup_reference") {
+    parts.push(plan.filters?.reference?.column === "utr"
+      ? "matched on the UTR" : "matched on the reference number");
+  }
+
   const period = plan.filters?.period;
   if (period?.label) parts.push(period.kind === "trailing" ? "trailing window" : "calendar period");
   return parts.join(", ");
@@ -50,7 +89,7 @@ export function buildPackage(question: string, plan: QueryPlan, result: any): Ve
   return {
     question,
     answer_value: primary,
-    answer_unit: plan.metric === "count" ? "count" : "INR",
+    answer_unit: answerUnit(plan),
     period_label: plan.filters?.period?.label ?? null,
     interpretation_text: interpretationText(plan),
     verdict,

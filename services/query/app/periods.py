@@ -63,7 +63,7 @@ def trailing(reference: date, days: int) -> dict:
 def previous(period: dict) -> dict:
     """The period immediately before this one, of the same shape and length."""
     start, end = parse_day(period["start"]), parse_day(period["end"])
-    if period.get("kind") == "calendar" and start == month_start(start):
+    if period.get("kind") == "calendar" and start == month_start(start) and end == month_end(start):
         earlier = start - timedelta(days=1)
         return calendar_month(earlier)
     length = (end - start).days + 1

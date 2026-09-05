@@ -6,11 +6,15 @@ from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException, Query
 
-from app import alternatives, anomaly, compute, db, evidence, pulse, queries
+from app import alternatives, anomaly, compute, crypto, db, evidence, leakguard, pulse, queries
 from app.catalog import catalog
 from app.meta import read_meta
 from app.resolver import explain
 from app.validate import plan_errors
+
+# Refuse to serve rather than quietly serve plaintext. VERITAS_ENCRYPTION=off is
+# the explicit local-development opt-out, and it warns on every start.
+crypto.require_ready()
 
 app = FastAPI(
     title="Veritas query service",
@@ -19,6 +23,7 @@ app = FastAPI(
 )
 
 RESOLVER_SAMPLES = 3
+MAX_EVIDENCE_PAGE = 10000
 
 
 @app.get("/health")
@@ -30,6 +35,7 @@ def health() -> dict[str, object]:
         "service": "query",
         "rows": meta.rows,
         "resolver_coverage": meta.resolver_coverage,
+        "encryption": crypto.scheme(),
     }
 
 
@@ -39,6 +45,11 @@ def run_query(plan: Any = Body(default=None)) -> dict:
     errors = plan_errors(plan)
     if errors:
         raise HTTPException(status_code=422, detail=errors)
+
+    smuggled = leakguard.plan_uses_sensitive_column(plan)
+    if smuggled:
+        raise HTTPException(status_code=422,
+                            detail=[f"{smuggled} is a sensitive column and is never queried or returned"])
 
     started = time.perf_counter()
     try:
@@ -53,7 +64,7 @@ def run_query(plan: Any = Body(default=None)) -> dict:
     ref = evidence.remember(plan)
     rows_behind = evidence.total(plan)
     meta = read_meta()
-    return {
+    return leakguard.clean({
         "primary": {"value": result["value"], "rows": result["rows"],
                     "row_count": rows_behind, "sql": result["sql"]},
         "alternatives": readings,
@@ -63,7 +74,7 @@ def run_query(plan: Any = Body(default=None)) -> dict:
         "resolver_samples": _samples(plan),
         "data_bounds": {"min_date": meta.min_date, "max_date": meta.max_date},
         "timing_ms": round((time.perf_counter() - started) * 1000, 2),
-    }
+    })
 
 
 def _samples(plan: dict) -> list[dict]:
@@ -77,20 +88,23 @@ def _samples(plan: dict) -> list[dict]:
 
 
 @app.get("/evidence")
-def get_evidence(ref: str, page: int = Query(1, ge=1)) -> dict:
+def get_evidence(ref: str, page: int = Query(1, ge=1, le=MAX_EVIDENCE_PAGE)) -> dict:
     """A further page of records for a previous result."""
     plan = evidence.recall(ref)
     if plan is None:
         raise HTTPException(status_code=404, detail="unknown or expired evidence ref")
-    return {"ref": ref, "page": page, "page_size": evidence.PAGE_SIZE,
-            "total": evidence.total(plan), "records": evidence.page(plan, page)}
+    try:
+        return leakguard.clean({"ref": ref, "page": page, "page_size": evidence.PAGE_SIZE,
+                                "total": evidence.total(plan), "records": evidence.page(plan, page)})
+    except db.DataNotLoaded as missing:
+        raise HTTPException(status_code=503, detail=str(missing)) from missing
 
 
 @app.get("/catalog")
 def get_catalog() -> dict:
     """Entities, masked accounts, banks, channels, top counterparties and the data bounds."""
     try:
-        return catalog()
+        return leakguard.clean(catalog())
     except db.DataNotLoaded as missing:
         raise HTTPException(status_code=503, detail=str(missing)) from missing
 
@@ -99,6 +113,6 @@ def get_catalog() -> dict:
 def get_pulse(entity_id: str | None = None) -> dict:
     """Five things worth knowing about this entity, cached after the first call."""
     try:
-        return pulse.pulse(entity_id)
+        return leakguard.clean(pulse.pulse(entity_id))
     except db.DataNotLoaded as missing:
         raise HTTPException(status_code=503, detail=str(missing)) from missing

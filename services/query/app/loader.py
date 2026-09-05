@@ -19,7 +19,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
-from app import resolver
+from app import crypto, resolver
+from app.masking import mask_narration
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schema.yaml"
 
@@ -145,8 +146,44 @@ def enrich(transactions: pd.DataFrame) -> pd.DataFrame:
     return transactions
 
 
+def _string_column(values: list, index) -> pd.Series:
+    """A nullable string column, so a chunk of all nulls still writes the same type."""
+    return pd.Series(values, dtype="string", index=index)
+
+
+def protect_accounts(accounts: pd.DataFrame) -> pd.DataFrame:
+    """Encrypt account_number and write the last four beside it.
+
+    The last four are the only part ever displayed, so keeping them in the clear
+    means no response has to decrypt anything.
+    """
+    accounts["account_number_last4"] = _string_column(
+        crypto.last4_column(accounts["account_number"]), accounts.index)
+    accounts["account_number"] = _string_column(
+        crypto.encrypt_column(accounts["account_number"]), accounts.index)
+    return accounts
+
+
+def protect_transactions(transactions: pd.DataFrame) -> pd.DataFrame:
+    """Encrypt utr_number, keep its last four, and redact the narration.
+
+    The narration carries account numbers in its own text, so the stored copy is
+    the masked one. The resolver has already run by this point, on the raw text,
+    so channel, counterparty and reference are decoded from the full narration
+    and nothing downstream needs the digits back.
+    """
+    transactions["utr_number_last4"] = _string_column(
+        crypto.last4_column(transactions["utr_number"]), transactions.index)
+    transactions["utr_number"] = _string_column(
+        crypto.encrypt_column(transactions["utr_number"]), transactions.index)
+    transactions["description"] = _string_column(
+        [mask_narration(text) for text in transactions["description"]], transactions.index)
+    return transactions
+
+
 def load(data: Path) -> dict:
     """Read, enrich and write the Parquet files and meta.json. Returns the metadata."""
+    crypto.require_ready()
     schema = read_schema()
     frames = read_tables(data, schema)
     banks, accounts = frames["bank"], frames["account"]
@@ -168,6 +205,7 @@ def load(data: Path) -> dict:
             chunk["transaction_date"] = pd.to_datetime(chunk["transaction_date"])
             chunk["transaction_amount"] = chunk["transaction_amount"].astype(float).round(2)
             chunk = enrich(chunk)
+            chunk = protect_transactions(chunk)
             chunk["entity_id"] = chunk["account_id"].map(entity_of)
             chunk["bank_code"] = chunk["account_id"].map(bank_of)
 
@@ -190,7 +228,7 @@ def load(data: Path) -> dict:
 
     rollup_rows = build_rollups(data)
 
-    accounts.to_parquet(data / "accounts.parquet", index=False)
+    protect_accounts(accounts).to_parquet(data / "accounts.parquet", index=False)
     banks.to_parquet(data / "banks.parquet", index=False)
 
     meta = {
@@ -233,10 +271,12 @@ def build_rollups(data: Path) -> int:
     """
     import duckdb
 
+    from app import db
+
     source = str((data / "transactions.parquet").resolve()).replace("'", "''")
     target = str((data / "rollups.parquet").resolve()).replace("'", "''")
     connection = duckdb.connect(database=":memory:")
-    connection.execute(f"SET memory_limit='{os.environ.get('DUCKDB_MEMORY_LIMIT', '1GB')}'")
+    connection.execute(f"SET memory_limit='{db.memory_limit()}'")
     connection.execute(ROLLUP_SQL.format(source=source, target=target))
     rows = connection.execute(f"SELECT count(*) FROM read_parquet('{target}')").fetchone()[0]
     connection.close()
@@ -249,6 +289,7 @@ def main() -> None:
     args = parser.parse_args()
     meta = load(args.data)
     print(f"loaded {meta['rows']} rows, resolver coverage {meta['resolver_coverage']}")
+    print(f"sensitive columns at rest: {crypto.scheme()}")
     print(f"rollup rows: {meta['rollup_rows']}")
 
 

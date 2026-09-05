@@ -26,9 +26,6 @@ def primary(plan: dict) -> dict:
             for key, value, count in db.rows(sql, params)]
 
     intent = plan.get("intent")
-    if intent == "period_compare":
-        rows = rows[:max(2, int(plan.get("limit") or 2))]
-
     if queries.is_grouped(plan):
         if intent == "period_compare":
             value = rows[0]["value"] if rows else 0.0

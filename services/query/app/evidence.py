@@ -27,10 +27,12 @@ DEFAULT_ORDER = "t.transaction_date DESC, t.transaction_id"
 
 _plans: OrderedDict[str, dict] = OrderedDict()
 
+# The last four characters are the only part a record ever shows, and the loader
+# stores them beside the encrypted column, so a page of evidence never decrypts.
 RECORD_SQL = """
 SELECT t.transaction_id, t.transaction_date, t.transaction_type, t.transaction_amount,
-       t.channel, t.counterparty_canonical, a.account_number, t.transaction_reference_id,
-       t.utr_number, t.description, t.confidence
+       t.channel, t.counterparty_canonical, a.account_number_last4, t.transaction_reference_id,
+       t.utr_number_last4, t.description, t.confidence
 FROM ({inner}) t
 LEFT JOIN accounts a ON a.account_id = t.account_id
 ORDER BY {order}
@@ -75,7 +77,7 @@ def _inner(plan: dict) -> tuple[str, list]:
     else:
         where, params = conditions(plan, transaction_type=kind, transfers_only=transfers_only)
         if intent == "unreferenced":
-            where.append(unreferenced.NO_REFERENCE)
+            where.append(unreferenced.unreconciled())
     return f"SELECT * FROM transactions {clause(where)}", params
 
 
@@ -99,7 +101,7 @@ def page(plan: dict, number: int = 1) -> list[dict]:
 
 def _record(row: tuple) -> dict:
     (transaction_id, when, kind, amount, channel, counterparty,
-     account_number, reference_id, utr, description, confidence) = row
+     account_last4, reference_id, utr_last4, description, confidence) = row
     return {
         "transaction_id": transaction_id,
         "date": when.isoformat(),
@@ -107,9 +109,9 @@ def _record(row: tuple) -> dict:
         "amount": round(float(amount), 2),
         "channel": channel,
         "counterparty": counterparty,
-        "account_masked": mask(account_number),
+        "account_masked": mask(account_last4),
         "reference_id": None if reference_id is None else str(reference_id),
-        "utr_masked": mask(utr),
+        "utr_masked": mask(utr_last4),
         "description": mask_narration(description),
         "parse_confidence": float(confidence),
     }

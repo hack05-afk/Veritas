@@ -8,6 +8,7 @@ from __future__ import annotations
 from app import anomaly, db, periods
 from app.masking import mask
 from app.meta import read_meta
+from app.queries import unreferenced
 
 _cache: dict[tuple[str, str | None], dict] = {}
 
@@ -35,13 +36,14 @@ def _accounts(entity_id: str | None) -> dict:
 def _balance_check(entity_id: str | None) -> dict:
     where, params = _entity_clause(entity_id, "a.entity_id")
     rows = db.rows(
-        "SELECT a.account_number, round(a.available_balance - coalesce(t.net, 0), 2) AS gap FROM accounts a "
+        "SELECT a.account_number_last4, round(a.available_balance - coalesce(t.net, 0), 2) AS gap "
+        "FROM accounts a "
         "LEFT JOIN (SELECT account_id, sum(CASE WHEN transaction_type = 'credit' THEN transaction_amount "
         "ELSE -transaction_amount END) AS net FROM transactions GROUP BY account_id) t "
         f"ON t.account_id = a.account_id {where} "
         "ORDER BY abs(a.available_balance - coalesce(t.net, 0)) DESC", params)
-    return {"accounts": [{"account_masked": mask(number), "gap": float(gap)}
-                         for number, gap in rows if abs(float(gap)) > 0.005],
+    return {"accounts": [{"account_masked": mask(last4), "gap": float(gap)}
+                         for last4, gap in rows if abs(float(gap)) > 0.005],
             "question": QUESTIONS["balance_check"]}
 
 
@@ -61,8 +63,7 @@ def _largest_debits(entity_id: str | None, month: dict) -> dict:
 def _unreferenced(entity_id: str | None) -> dict:
     where, params = _entity_clause(entity_id)
     clause = f"{where} AND " if where else "WHERE "
-    rows = db.rows("SELECT count(*) FROM transactions "
-                   f"{clause} transaction_reference_id IS NULL AND utr_number IS NULL", params)
+    rows = db.rows(f"SELECT count(*) FROM transactions {clause} {unreferenced.unreconciled()}", params)
     return {"count": int(rows[0][0]), "question": QUESTIONS["unreferenced"]}
 
 
@@ -79,6 +80,8 @@ def _spikes(entity_id: str | None, month: dict) -> dict:
 def pulse(entity_id: str | None) -> dict:
     """The five tiles for one entity, computed once and kept."""
     meta = read_meta()
+    if not meta.max_date:
+        raise db.DataNotLoaded("no dataset is loaded, so there is no pulse to show")
     key = (str(meta.max_date), entity_id)
     if key in _cache:
         return _cache[key]

@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import date
 
 from app import periods
-from app.queries.common import TRANSFER_CHANNELS
+from app.queries.common import TRANSFER_CHANNELS, group_limit
 
 # Intents whose answer is a sum or a count over groups, and nothing else.
 SUPPORTED = {"spend_total", "spend_by_channel", "spend_by_counterparty",
@@ -61,7 +61,7 @@ def _conditions(plan: dict, *, transaction_type: str, transfers_only: bool) -> t
         params.append(filters["entity_id"])
 
     account_ids = filters.get("account_ids")
-    if account_ids and (interpretation.get("scope") == "account" or not filters.get("entity_id")):
+    if account_ids:
         where.append(f"account_id IN ({', '.join('?' * len(account_ids))})")
         params.extend(account_ids)
 
@@ -113,14 +113,16 @@ def build(plan: dict) -> tuple[str, list]:
 
     if group_by in GROUP_COLUMN:
         column = GROUP_COLUMN[group_by]
-        sql = (f"SELECT {column} AS key, round({amount}, 2) AS value, sum(n) AS count "
-               f"FROM rollups {clause} GROUP BY key ORDER BY value DESC")
         if intent == "counterparty_ranking":
             direction = "ASC" if plan.get("sort") == "asc" else "DESC"
-            sql = (f"SELECT {column} AS key, round({amount}, 2) AS value, sum(n) AS count "
-                   f"FROM rollups {clause} GROUP BY key ORDER BY value {direction}, key ASC LIMIT ?")
-            params = params + [int(plan.get("limit") or 10)]
-        return sql, params
+            order = f"ORDER BY value {direction}, key ASC"
+            limit = int(plan.get("limit") or 10)
+        else:
+            order = "ORDER BY value DESC"
+            limit = group_limit(plan)
+        sql = (f"SELECT {column} AS key, round({amount}, 2) AS value, sum(n) AS count "
+               f"FROM rollups {clause} GROUP BY key {order} LIMIT ?")
+        return sql, params + [limit]
 
     return (f"SELECT 'total' AS key, round(coalesce({amount}, 0), 2) AS value, "
             f"coalesce(sum(n), 0) AS count FROM rollups {clause}"), params

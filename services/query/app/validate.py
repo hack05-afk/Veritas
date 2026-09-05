@@ -5,14 +5,15 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 CONTRACTS = Path(__file__).resolve().parents[3] / "contracts"
 
 
 @lru_cache(maxsize=8)
 def _validator(name: str) -> Draft202012Validator:
-    return Draft202012Validator(json.loads((CONTRACTS / name).read_text()))
+    return Draft202012Validator(json.loads((CONTRACTS / name).read_text()),
+                                format_checker=FormatChecker())
 
 
 def plan_errors(plan: object) -> list[str]:

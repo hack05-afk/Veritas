@@ -19,6 +19,15 @@ GROUP_COLUMN = {
 }
 UNKNOWN = "UNKNOWN"
 
+# How many groups a grouped answer returns when the plan does not say.
+DEFAULT_GROUP_LIMIT = 200
+
+
+def group_limit(plan: dict) -> int:
+    """The row cap for a grouped result, so a wide grouping cannot run away."""
+    limit = plan.get("limit")
+    return int(limit) if limit else DEFAULT_GROUP_LIMIT
+
 
 def counterparty_key(counterparty: dict) -> tuple[str, str]:
     """The column to match on and the value to match, for exact or family matching."""

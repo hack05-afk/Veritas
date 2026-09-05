@@ -8,17 +8,30 @@ from __future__ import annotations
 
 from app.queries.common import TRANSFER_CHANNELS, clause, conditions
 
-UNMATCHED = """
-SELECT d.* FROM ({debits}) d
-WHERE NOT EXISTS (
-    SELECT 1 FROM transactions c
-    WHERE c.transaction_type = 'credit'
-      AND c.entity_id = d.entity_id
-      AND c.account_id <> d.account_id
+# Both sides are ranked inside the entity and amount they would pair on, so a
+# credit answers at most one debit and the whole pairing is one pass over the
+# table rather than a lookup for every debit.
+RANK = ("row_number() OVER (PARTITION BY entity_id, transaction_amount "
+        "ORDER BY transaction_date, transaction_id) AS pair_rank")
+
+UNMATCHED = f"""
+WITH ranked_debits AS (
+    SELECT *, {RANK} FROM ({{debits}})
+),
+ranked_credits AS (
+    SELECT entity_id, account_id, transaction_amount, transaction_date, {RANK}
+    FROM transactions WHERE transaction_type = 'credit'
+)
+SELECT d.* EXCLUDE (pair_rank)
+FROM ranked_debits d
+LEFT JOIN ranked_credits c
+       ON c.entity_id = d.entity_id
       AND c.transaction_amount = d.transaction_amount
+      AND c.pair_rank = d.pair_rank
+      AND c.account_id <> d.account_id
       AND c.transaction_date BETWEEN d.transaction_date - INTERVAL 1 DAY
                                 AND d.transaction_date + INTERVAL 1 DAY
-)
+WHERE c.entity_id IS NULL
 """
 
 

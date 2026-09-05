@@ -2,11 +2,15 @@
 
 A bare reference matches transaction_reference_id. utr_number is used only when
 the user says UTR, and the answer echoes the masked value.
+
+utr_number is stored encrypted, so a UTR search encrypts what the user asked for
+and matches that. Deterministic encryption is what makes the equality hold.
 """
 from __future__ import annotations
 
 import re
 
+from app import crypto
 from app.queries.common import clause, conditions
 
 COLUMN = {"reference_id": "transaction_reference_id", "utr": "utr_number"}
@@ -33,7 +37,10 @@ def reference_condition(plan: dict) -> tuple[str, list[str]]:
     """The column to search and every form of the value worth searching for."""
     reference = (plan.get("filters") or {}).get("reference") or {}
     column = COLUMN.get(reference.get("column", "reference_id"), "transaction_reference_id")
-    return column, candidates(reference.get("value", ""))
+    forms = candidates(reference.get("value", ""))
+    if column == "utr_number":
+        forms = [crypto.search_form(form) for form in forms]
+    return column, forms
 
 
 def build(plan: dict) -> tuple[str, list]:

@@ -18,9 +18,12 @@ def build(plan: dict) -> tuple[str, list]:
     parts: list[str] = []
     params: list = []
     for one in (plan, earlier):
+        # Each window is one row keyed by its own start day, so the two windows
+        # cannot collide on a shared key when they are not calendar months.
+        window = one["filters"]["period"]
         where, where_params = conditions(one, transaction_type=one.get("filters", {}).get("transaction_type", "debit"))
-        parts.append("SELECT strftime(date_trunc('month', transaction_date), '%Y-%m-01') AS key, "
-                     "round(sum(transaction_amount), 2) AS value, count(*) AS count "
-                     f"FROM transactions {clause(where)} GROUP BY key")
+        parts.append("SELECT ? AS key, round(coalesce(sum(transaction_amount), 0), 2) AS value, "
+                     f"count(*) AS count FROM transactions {clause(where)}")
+        params.append(periods.parse_day(window["start"]).isoformat())
         params.extend(where_params)
     return f"SELECT * FROM ({' UNION ALL '.join(parts)}) ORDER BY key DESC", params

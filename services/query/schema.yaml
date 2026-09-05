@@ -32,3 +32,54 @@ transaction:
 sensitive:
   - account.account_number
   - transaction.utr_number
+
+# The columns a file must carry to be routed to a table, and the column that
+# identifies one row. app/ingest.py scores every file against these; a file is
+# only routed to a table when the identity column is present and at least six
+# in ten of the required columns are.
+routing:
+  bank:
+    identity: bank_code
+    required: [bank_code, bank_name]
+  account:
+    identity: account_id
+    required: [account_id, account_number, bank_code]
+  transaction:
+    identity: transaction_id
+    required: [transaction_id, account_id, transaction_date, transaction_amount, transaction_type]
+
+# Source keys accepted for each canonical column. Comparison ignores case,
+# spaces, hyphens, dots and camel case, so only genuine synonyms belong here.
+# Edit this list rather than the code when a delivered file names a column
+# in a way the ingester does not yet know.
+aliases:
+  bank:
+    bank_code: [bank_id, bank_short_code, bankcode, bank_abbr, ifsc_prefix]
+    bank_name: [bank_title, institution, institution_name, bank_full_name]
+  account:
+    account_id: [id, acct_id, acc_id, account, account_key, account_ref]
+    entity_id: [entity, org_id, organisation_id, organization_id, company_id, client_id, customer_id]
+    account_number: [acct_no, account_no, acc_no, account_num, acct_number, bank_account_number]
+    program_id: [program, product_id, scheme_id, programme_id]
+    available_balance: [balance, avail_balance, available_bal, current_balance, closing_balance, ledger_balance]
+    bank_code: [bank, bank_id, bankcode]
+  transaction:
+    transaction_id: [txn_id, id, tran_id, transaction_no, txn_no, entry_id, record_id]
+    account_id: [acct_id, acc_id, account, account_no_id, source_account_id, account_key]
+    transaction_date: [date, txn_date, tran_date, value_date, posted_at, posting_date, booking_date, timestamp, datetime]
+    transaction_type: [type, dr_cr, drcr, cr_dr, txn_type, direction, entry_type, debit_credit]
+    description: [narration, particulars, remarks, desc, details, transaction_description, memo, narrative]
+    transaction_amount: [amount, amt, txn_amount, tran_amount, value, transaction_value, amount_inr]
+    transaction_reference_id: [ref, ref_no, reference, reference_no, rrn, transaction_ref, txn_ref, reference_number]
+    utr_number: [utr, utr_no, utr_ref, unique_transaction_reference]
+
+# Columns outside the base schema that the service knows what to do with.
+# A vendor column becomes the counterparty; a reconciliation status answers the
+# unreconciled question directly instead of the derived checks. Every other
+# unrecognised column is still kept, but only as a passthrough.
+extras:
+  transaction:
+    reconciliation_status: [recon_status, reconciliation, recon_state, match_status, settlement_status,
+                            reconciled, reconciliation_state, recon_flag]
+    vendor_name: [vendor, vendor_id, vendor_code, counterparty, counterparty_name, merchant, merchant_name,
+                  payee, payee_name, beneficiary, beneficiary_name, party, party_name, supplier, supplier_name]

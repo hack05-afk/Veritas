@@ -84,7 +84,11 @@ function Workspace() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [question, setQuestion] = React.useState("");
   const [asking, setAsking] = React.useState(false);
-  const [entity, setEntity] = React.useState("ent-0001");
+  // Read from the catalog rather than hard coded: swapping the dataset must
+  // change what the header offers, or every tile queries an entity that is not
+  // in the data and reports zero.
+  const [entities, setEntities] = React.useState<string[]>([]);
+  const [entity, setEntity] = React.useState("");
   const [callOpen, setCallOpen] = React.useState(params.get("call") === "1");
   const [trail, setTrail] = React.useState<Provenance | null>(null);
 
@@ -183,6 +187,21 @@ function Workspace() {
     void ask(handed);
   }, [handed, replay, demoParam.active, ask]);
 
+  // Whatever dataset is loaded decides the entities on offer. The first one is
+  // selected so the pulse tiles have something real to ask about immediately.
+  React.useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((catalog) => {
+        if (cancelled || !catalog?.entities?.length) return;
+        setEntities(catalog.entities);
+        setEntity((current) => (current && catalog.entities.includes(current) ? current : catalog.entities[0]));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   const reduced = useReducedMotion();
 
   /** A replayed beat shows its question too, so the conversation still reads. */
@@ -236,8 +255,9 @@ function Workspace() {
           <select id="entity" name="entity" value={entity}
             onChange={(event) => setEntity(event.target.value)}
             className="h-7 rounded-sm border border-rule bg-surface px-2 text-2xs uppercase tracking-label text-ink-2 outline-none hover:border-rule-strong focus:border-accent">
-            <option>ent-0001</option><option>ent-0002</option>
-            <option>ent-0003</option><option>ent-0004</option>
+            {entities.length
+              ? entities.map((id) => <option key={id} value={id}>{id}</option>)
+              : <option value="">loading</option>}
           </select>
         </div>
 

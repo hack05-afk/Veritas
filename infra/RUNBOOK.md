@@ -47,8 +47,8 @@ only the questions in `fixtures/llm/fake_responses.json`.
    synthetic set do not exist there, so run them in shape-only mode:
 
    ```
-   TBX_EXPECTED_MODE=schema_only ./internal/tests/run_mvp.sh 2
-   TBX_EXPECTED_MODE=schema_only ./internal/tests/run_mvp.sh 3
+   python eval/ground_truth.py
+   python eval/run_eval.py --out eval/results_real.json
    ```
 
    These check shapes and invariants, not planted numbers: that masking holds,

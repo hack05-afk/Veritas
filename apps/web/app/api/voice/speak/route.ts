@@ -10,6 +10,9 @@ import { silentWav, textToSpeech, translate, UNSPEAKABLE, useFake } from "@/lib/
 
 export const dynamic = "force-dynamic";
 
+// Synthesis outruns the default limit.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const text = body?.text_en;

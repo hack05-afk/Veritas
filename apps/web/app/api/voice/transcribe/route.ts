@@ -5,6 +5,9 @@ import { fakeTranscripts, speechToTextTranslate, useFake } from "@/lib/voice/sar
 
 export const dynamic = "force-dynamic";
 
+// Speech to text on an uploaded clip outruns the default limit.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   let form: FormData;
   try {

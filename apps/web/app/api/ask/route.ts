@@ -18,6 +18,10 @@ import { provider } from "@/lib/llm/provider";
 
 export const dynamic = "force-dynamic";
 
+// The model call allows 30 seconds and retries once, and the query service
+// runs after it, so the default serverless limit is too short.
+export const maxDuration = 60;
+
 async function runQuery(plan: QueryPlan) {
   const base = (process.env.QUERY_SERVICE_URL || "http://localhost:8000").replace(/\/$/, "");
   const response = await fetch(`${base}/query`, {

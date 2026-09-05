@@ -176,3 +176,47 @@ def resolve(description: str) -> Resolved:
     confidence = 1.0 if reference else 0.6
     return Resolved(channel, counterparty_raw, canonical, family_of(canonical),
                     ifsc, bank_code, reference, confidence)
+
+
+_ROLE_UNKNOWN = "unknown"
+
+
+def _role(token: str, decoded: Resolved) -> str:
+    """The part a single token plays in the narration."""
+    upper = token.upper()
+    if _IFSC.match(upper):
+        return "ifsc"
+    if _MASKED_ACCOUNT.match(token):
+        return "masked_account"
+    if token == decoded.reference:
+        return "reference"
+    if _DIGITS.match(token):
+        return "account_number" if len(token) >= 8 else _ROLE_UNKNOWN
+    if len(upper) == 4 and upper.isalpha() and upper in BANK_CODES:
+        return "bank_code"
+    if token == decoded.counterparty_raw:
+        return "counterparty"
+    return _ROLE_UNKNOWN
+
+
+def explain(description: str) -> list[dict[str, str]]:
+    """Decode a narration token by token, for the Reasoning Theatre to show its working."""
+    text = (description or "").replace("\x00", " ")
+    decoded = resolve(text)
+    parts = _split(text)
+    tokens: list[dict[str, str]] = []
+    if parts and parts[0].strip():
+        head = parts[0].strip()
+        tokens.append({"text": head, "role": "channel" if decoded.channel != "Other" else _ROLE_UNKNOWN})
+    for token in parts[1:]:
+        token = token.strip()
+        if not token:
+            continue
+        role = _role(token, decoded)
+        if role == "counterparty" and _TWO_SPACES.search(token):
+            name, location = _TWO_SPACES.split(token, 1)
+            tokens.append({"text": name.strip(), "role": "counterparty"})
+            tokens.append({"text": location.strip(), "role": "location"})
+            continue
+        tokens.append({"text": token, "role": role})
+    return tokens

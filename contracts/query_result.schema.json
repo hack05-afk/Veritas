@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tbx.local/contracts/query_result.schema.json",
+  "$id": "https://veritas.local/contracts/query_result.schema.json",
   "title": "QueryResult",
   "description": "The deterministic answer computed by the query service. Every sensitive column is already masked.",
   "type": "object",

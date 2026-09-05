@@ -1,6 +1,6 @@
-# TBX Truth Engine
+# Veritas
 
-TBX answers plain-language questions about a company ledger and shows its
+Veritas answers plain-language questions about a company ledger and shows its
 working. A question is turned into a structured query plan, the numbers are
 computed deterministically in DuckDB over the bank, account and transaction
 tables, and the answer comes back with the records behind it, the other

@@ -1,4 +1,4 @@
--- Sample rows for the TBX schema: ten banks, ten accounts, ten transactions.
+-- Sample rows for the Veritas schema: ten banks, ten accounts, ten transactions.
 -- One company, one currency (INR). account_number and utr_number are sensitive
 -- and are masked everywhere outside this file.
 

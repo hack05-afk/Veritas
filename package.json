@@ -1,5 +1,5 @@
 {
-  "name": "tbx-truth-engine",
+  "name": "veritas",
   "private": true,
   "version": "1.0.0",
   "description": "A grounded finance assistant over a bank, account and transaction ledger.",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TBX",
+  title: "Veritas",
   description: "Ask your ledger. Get the truth.",
 };
 

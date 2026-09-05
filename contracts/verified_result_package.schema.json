@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tbx.local/contracts/verified_result_package.schema.json",
+  "$id": "https://veritas.local/contracts/verified_result_package.schema.json",
   "title": "VerifiedResultPackage",
   "description": "Everything the Truth Panel, the explanation model and the Speech Writer are allowed to see. allowed_numbers is the grounding check: any digit sequence in generated text that is not in this list fails.",
   "type": "object",

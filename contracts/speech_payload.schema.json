@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tbx.local/contracts/speech_payload.schema.json",
+  "$id": "https://veritas.local/contracts/speech_payload.schema.json",
   "title": "SpeechPayload",
   "description": "Request and response bodies for the two voice endpoints. A payload is exactly one of the four shapes.",
   "oneOf": [

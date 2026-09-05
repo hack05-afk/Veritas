@@ -1,1 +1,1 @@
-"""TBX query service: deterministic computation over the ledger."""
+"""Veritas query service: deterministic computation over the ledger."""

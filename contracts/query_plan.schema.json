@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tbx.local/contracts/query_plan.schema.json",
+  "$id": "https://veritas.local/contracts/query_plan.schema.json",
   "title": "QueryPlan",
   "description": "The structured plan produced by the language model. A plan is one of: a computable query, a clarification request, or a refusal.",
   "oneOf": [

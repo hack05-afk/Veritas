@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tbx.local/contracts/theatre_event.schema.json",
+  "$id": "https://veritas.local/contracts/theatre_event.schema.json",
   "title": "TheatreEvent",
   "description": "One server-sent event in the Reasoning Theatre stream. artifact is stage specific: a partial QueryPlan, a validation checklist, sql and rows, alternatives, or the VerifiedResultPackage.",
   "type": "object",

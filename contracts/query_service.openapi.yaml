@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: TBX query service
+  title: Veritas query service
   version: 1.0.0
   description: >
     Deterministic computation over the bank, account and transaction tables.

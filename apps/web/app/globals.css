@@ -1,8 +1,5 @@
+@import "../../../packages/ui/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  background: #f5f8f7;
-  color: #1a1a1a;
-}

@@ -6,6 +6,7 @@
  * ever spoken or translated.
  */
 import type { VerifiedResultPackage } from "../orchestrator/types";
+import { redactText } from "../security/redact";
 
 const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
   "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
@@ -81,5 +82,7 @@ export function writeSpeech(pkg: VerifiedResultPackage): string {
   }
 
   sentences.push("The breakdown is on your screen");
-  return `${sentences.join(". ")}.`;
+  // A spoken sentence is sent to a translation and speech service, so it goes
+  // out through the same filter as every other exit.
+  return redactText(`${sentences.join(". ")}.`);
 }

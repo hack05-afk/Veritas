@@ -7,7 +7,8 @@
  */
 import { jsPDF } from "jspdf";
 
-import type { VerifiedResultPackage } from "@/lib/orchestrator/types";
+import type { VerifiedResultPackage } from "./orchestrator/types";
+import { redactText } from "./security/redact";
 
 interface Record_ {
   date: string;
@@ -49,12 +50,16 @@ export function buildReport(pkg: VerifiedResultPackage, sql: string | undefined,
     }
   };
 
+  // Everything written into the report goes through the same redaction as the
+  // CSV export, including the question the person typed, which is the one part
+  // of a report that arrives unmasked. Amounts are grouped with commas, so no
+  // figure in the report is long enough to be redacted.
   const text = (value: string, size: number, weight: "normal" | "bold" = "normal",
                 grey = false) => {
     doc.setFont("helvetica", weight);
     doc.setFontSize(size);
     doc.setTextColor(grey ? 110 : 26);
-    for (const line of doc.splitTextToSize(value, width - MARGIN * 2)) {
+    for (const line of doc.splitTextToSize(redactText(value), width - MARGIN * 2)) {
       room(LINE);
       doc.text(line, MARGIN, y);
       y += size < 12 ? LINE - 3 : LINE;
@@ -105,7 +110,7 @@ export function buildReport(pkg: VerifiedResultPackage, sql: string | undefined,
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
       doc.setTextColor(26);
-      doc.text(String(row.key), MARGIN, y);
+      doc.text(redactText(String(row.key)), MARGIN, y);
       doc.text(`Rs ${indian(row.value)}`, width - MARGIN, y, { align: "right" });
       y += LINE;
     }
@@ -120,7 +125,7 @@ export function buildReport(pkg: VerifiedResultPackage, sql: string | undefined,
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(70);
-      doc.text(`${record.date.slice(0, 10)}  ${record.channel}  ${record.counterparty ?? "Unknown"}  ${record.account_masked ?? ""}`,
+      doc.text(redactText(`${record.date.slice(0, 10)}  ${record.channel}  ${record.counterparty ?? "Unknown"}  ${record.account_masked ?? ""}`),
                MARGIN, y);
       doc.text(`Rs ${indian(record.amount)}`, width - MARGIN, y, { align: "right" });
       y += LINE - 3;
@@ -134,7 +139,7 @@ export function buildReport(pkg: VerifiedResultPackage, sql: string | undefined,
     doc.setFont("courier", "normal");
     doc.setFontSize(8);
     doc.setTextColor(90);
-    for (const line of doc.splitTextToSize(sql, width - MARGIN * 2)) {
+    for (const line of doc.splitTextToSize(redactText(sql), width - MARGIN * 2)) {
       room(11);
       doc.text(line, MARGIN, y);
       y += 11;

@@ -2,13 +2,51 @@
  * The sentence under the number.
  *
  * The model may rewrite the templated explanation, but only if every digit it
- * writes is a number the computation actually produced. Otherwise the template
- * stands. This is the grounding check.
+ * writes is a number the computation actually produced and it spells out no
+ * quantity the template did not. Otherwise the template stands. This is the
+ * grounding check.
  */
 import { chat } from "../llm/provider";
+import { redactText } from "../security/redact";
 import type { VerifiedResultPackage } from "./types";
 
 const NUMBER = /\d[\d,]*(?:\.\d+)?/g;
+
+const NUMBER_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+  "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+  "seventeen", "eighteen", "nineteen", "twenty", "thirty", "forty", "fifty",
+  "sixty", "seventy", "eighty", "ninety", "hundred", "thousand", "lakh", "lakhs",
+  "crore", "crores", "million", "billion", "trillion", "half", "quarter",
+  "double", "twice", "paise",
+];
+
+const WORD = /[a-z]+(?:-[a-z]+)*/g;
+
+/** The number words in a text, with hyphenated forms split into their parts. */
+function numberWords(text: string): Set<string> {
+  const found = new Set<string>();
+  for (const token of text.toLowerCase().match(WORD) ?? []) {
+    for (const part of token.split("-")) {
+      if (NUMBER_WORDS.includes(part)) found.add(part);
+    }
+  }
+  return found;
+}
+
+/**
+ * Whether the text spells out a quantity the reference text does not.
+ *
+ * Digits alone are not enough of a check: "about eighteen crore rupees" carries
+ * a number no computation produced.
+ */
+export function noUnsupportedNumberWords(text: string, reference: string): boolean {
+  const allowed = numberWords(reference);
+  for (const word of numberWords(text)) {
+    if (!allowed.has(word)) return false;
+  }
+  return true;
+}
 
 /** Indian grouping: 12,40,000 rather than 1,240,000. */
 export function formatIndian(value: number): string {
@@ -32,8 +70,18 @@ export function numbersAreAllowed(text: string, allowed: number[]): boolean {
   return true;
 }
 
-/** The explanation Veritas writes for itself, using only numbers it computed. */
+/**
+ * The explanation Veritas writes for itself, using only numbers it computed.
+ *
+ * A clarification quotes back the value a plan named, which is the one part of
+ * this sentence that could carry an identifier, so the finished sentence is
+ * redacted. Amounts are grouped, so redaction never touches a figure.
+ */
 export function templateExplanation(pkg: VerifiedResultPackage): string {
+  return redactText(rawTemplate(pkg));
+}
+
+function rawTemplate(pkg: VerifiedResultPackage): string {
   if (pkg.refusal) {
     return `${pkg.refusal.reason} Ask for spend, receipts, counterparties, balances or a reference number instead.`;
   }
@@ -52,17 +100,19 @@ export function templateExplanation(pkg: VerifiedResultPackage): string {
 /**
  * Let the model rewrite the template, and keep its version only if it is grounded.
  */
-export async function explain(pkg: VerifiedResultPackage, fakeExplainOverride?: string):
+export async function explain(pkg: VerifiedResultPackage, fakeExplainOverride?: string,
+                              model?: string):
     Promise<{ explanation: string; explanation_source: "model" | "template" }> {
   const template = templateExplanation(pkg);
   try {
     const written = await chat([
       { role: "system", content: "Rewrite the explanation in two short plain sentences. Use only the numbers given. Add nothing." },
       { role: "user", content: `<explain>${template}</explain>` },
-    ], { fakeExplainOverride });
+    ], { fakeExplainOverride, model });
 
-    const candidate = written.trim();
-    if (candidate && numbersAreAllowed(candidate, pkg.allowed_numbers)) {
+    const candidate = redactText(written.trim());
+    if (candidate && numbersAreAllowed(candidate, pkg.allowed_numbers)
+        && noUnsupportedNumberWords(candidate, template)) {
       return { explanation: candidate, explanation_source: "model" };
     }
   } catch {

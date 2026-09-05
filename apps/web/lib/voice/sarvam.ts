@@ -10,11 +10,15 @@
  * runs on the fixtures.
  */
 import fs from "fs";
-import path from "path";
 
-const REPO_ROOT = path.resolve(process.cwd(), process.cwd().endsWith("apps/web") ? "../.." : ".");
-const VOICE = path.join(REPO_ROOT, "fixtures/voice");
+import { requireRepoFile } from "../paths";
+
 const BASE = process.env.SARVAM_BASE_URL || "https://api.sarvam.ai";
+
+/** Speech calls carry audio, so they are given a longer budget than a text call. */
+function timeout(): AbortSignal {
+  return AbortSignal.timeout(Number(process.env.SARVAM_TIMEOUT_MS || 30000));
+}
 
 /** Anything that cannot be spoken plainly: digits, symbols and dashes. */
 export const UNSPEAKABLE = /[0-9₹%*_#|\-–—]/;
@@ -22,18 +26,29 @@ export const UNSPEAKABLE = /[0-9₹%*_#|\-–—]/;
 export interface Transcript { text_en: string; detected_lang: string; transcript_native: string }
 
 export function fakeTranscripts(): Record<string, Transcript & { keyword: string }> {
-  return JSON.parse(fs.readFileSync(path.join(VOICE, "fake_transcripts.json"), "utf8"));
+  return JSON.parse(fs.readFileSync(requireRepoFile("fixtures/voice/fake_transcripts.json"), "utf8"));
 }
 
 export function speakers(): Record<string, string> {
-  return JSON.parse(fs.readFileSync(path.join(VOICE, "speakers.json"), "utf8"));
+  return JSON.parse(fs.readFileSync(requireRepoFile("fixtures/voice/speakers.json"), "utf8"));
 }
 
-/** Is this request meant to use the fixtures rather than the live service? */
+/**
+ * Is this request meant to use the fixtures rather than the live service?
+ *
+ * Outside production a caller may ask for the fixtures with a header, which is
+ * how the test suite runs against a deployment that has a key. The header can
+ * only ever force the fixtures: nothing a client sends can turn on a paid call.
+ */
 export function useFake(request: Request): boolean {
-  const header = request.headers.get("x-tbx-provider");
-  if (header) return header === "fake";
-  return (process.env.SARVAM_PROVIDER || "fake") === "fake";
+  const configured = (process.env.SARVAM_PROVIDER || "fake") === "fake";
+  if (configured) return true;
+  if (process.env.NODE_ENV === "production") return false;
+
+  // x-veritas-provider is the canonical name. x-tbx-provider is the earlier
+  // name and is still read so older clients keep working.
+  const header = request.headers.get("x-veritas-provider") ?? request.headers.get("x-tbx-provider");
+  return header === "fake";
 }
 
 function key(): string {
@@ -72,6 +87,7 @@ export async function speechToTextTranslate(audio: Blob, filename: string): Prom
     method: "POST",
     headers: { "api-subscription-key": key() },
     body: form,
+    signal: timeout(),
   });
   if (!response.ok) throw new Error(`speech to text failed: ${response.status} ${await response.text()}`);
 
@@ -89,6 +105,7 @@ export async function translate(text: string, target: string): Promise<string> {
     method: "POST",
     headers: { "content-type": "application/json", "api-subscription-key": key() },
     body: JSON.stringify({ input: text, source_language_code: "en-IN", target_language_code: target }),
+    signal: timeout(),
   });
   if (!response.ok) throw new Error(`translate failed: ${response.status} ${await response.text()}`);
   return (await response.json()).translated_text ?? text;
@@ -105,6 +122,7 @@ export async function textToSpeech(text: string, target: string): Promise<string
       speaker,
       model: process.env.SARVAM_TTS_MODEL || "bulbul:v2",
     }),
+    signal: timeout(),
   });
   if (!response.ok) throw new Error(`text to speech failed: ${response.status} ${await response.text()}`);
   const body = await response.json();

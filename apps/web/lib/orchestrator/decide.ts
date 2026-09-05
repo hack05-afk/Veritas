@@ -14,8 +14,37 @@ export type Decision =
   | { kind: "clarify"; clarification: Clarification }
   | { kind: "refuse"; refusal: { reason: string; can_do: string[] } };
 
-/** How different two counterparty totals must be before the choice matters. */
+/**
+ * How close two counterparty volumes have to be before the choice matters.
+ *
+ * When one candidate carries far more rows than the other, it is plainly the one
+ * meant. When they are of a similar size, guessing would produce a confidently
+ * wrong number, so the question goes back.
+ */
 export const AMBIGUITY_PCT = 15;
+
+type Counterparty = Catalog["counterparties"][number];
+
+/**
+ * The catalog entries a named counterparty could mean.
+ *
+ * An exact name is taken at its word. Otherwise the names that start with it are
+ * preferred, and a loose substring match is used only when nothing else matches,
+ * so "TATA" does not pull in every name that happens to contain those letters
+ * when a real "TATA ..." exists.
+ */
+function candidates(wanted: string, catalog: Catalog): Counterparty[] {
+  const needle = wanted.trim().toUpperCase();
+  if (!needle) return [];
+
+  const exact = catalog.counterparties.filter((c) => c.canonical.toUpperCase() === needle);
+  if (exact.length) return exact;
+
+  const prefix = catalog.counterparties.filter((c) => c.canonical.toUpperCase().startsWith(needle));
+  if (prefix.length) return prefix;
+
+  return catalog.counterparties.filter((c) => c.canonical.toUpperCase().includes(needle));
+}
 
 export function decide(question: string, plan: QueryPlan | null, previous: QueryPlan | null,
                        catalog: Catalog, errors: string[]): Decision {
@@ -71,11 +100,12 @@ export function decide(question: string, plan: QueryPlan | null, previous: Query
 
   const wanted = plan.filters?.counterparty?.canonical;
   if (wanted) {
-    const matches = catalog.counterparties.filter((c) => c.canonical.includes(wanted.toUpperCase()));
+    const matches = candidates(wanted, catalog);
     if (matches.length >= 2) {
       const [first, second] = matches;
       const gap = Math.abs(first.count - second.count) / Math.max(first.count, 1) * 100;
-      if (gap >= AMBIGUITY_PCT) {
+      // Two counterparties of similar volume are the ambiguous case.
+      if (gap < AMBIGUITY_PCT) {
         return {
           kind: "clarify",
           clarification: {
@@ -89,5 +119,10 @@ export function decide(question: string, plan: QueryPlan | null, previous: Query
     }
   }
 
-  return { kind: "compute", plan };
+  // The deterministic side decides what to run, not the model. A model that
+  // omits these flags would silently switch off the alternative readings and
+  // the anomaly scan, which is most of what the answer is for. The query
+  // service works out which axes actually apply and returns nothing when none
+  // do, so asking for both here is always safe.
+  return { kind: "compute", plan: { ...plan, run_alternatives: true, run_anomaly: true } };
 }

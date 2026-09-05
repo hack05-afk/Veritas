@@ -1,5 +1,5 @@
 /** Reading a server-sent event stream in the browser. */
-import type { TheatreEvent } from "@/lib/orchestrator/types";
+import type { TheatreEvent } from "../orchestrator/types";
 
 export async function readEvents(response: Response, onEvent: (event: TheatreEvent) => void): Promise<void> {
   const reader = response.body?.getReader();

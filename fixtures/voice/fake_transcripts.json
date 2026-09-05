@@ -1,0 +1,20 @@
+{
+  "tamil_spend.wav": {
+    "text_en": "What did we spend last month?",
+    "detected_lang": "ta-IN",
+    "transcript_native": "கடந்த மாதம் நாங்கள் எவ்வளவு செலவு செய்தோம்?",
+    "keyword": "spend"
+  },
+  "hindi_counterparty.wav": {
+    "text_en": "Who were our top five counterparties last quarter?",
+    "detected_lang": "hi-IN",
+    "transcript_native": "पिछली तिमाही में हमारे शीर्ष पाँच काउंटरपार्टी कौन थे?",
+    "keyword": "counterpart"
+  },
+  "english_balance.wav": {
+    "text_en": "Does our balance match the transactions?",
+    "detected_lang": "en-IN",
+    "transcript_native": "Does our balance match the transactions?",
+    "keyword": "balance"
+  }
+}

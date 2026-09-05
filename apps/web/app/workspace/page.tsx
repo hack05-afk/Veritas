@@ -6,6 +6,7 @@ import { Button, Card, type Stage, type StageState } from "@veritas/ui";
 
 import { ClarificationCard, RefusalCard } from "@/components/conversation/Cards";
 import { PulseStrip } from "@/components/pulse/PulseStrip";
+import { CallSurface } from "@/components/call/CallSurface";
 import { Theatre, type TheatreState } from "@/components/theatre/Theatre";
 import { TruthPanel } from "@/components/truth/TruthPanel";
 import type { EvidenceRecord } from "@/components/evidence/EvidenceDrawer";
@@ -42,6 +43,7 @@ function Workspace() {
   const [question, setQuestion] = React.useState("");
   const [asking, setAsking] = React.useState(false);
   const [entity, setEntity] = React.useState("ent-0001");
+  const [callOpen, setCallOpen] = React.useState(false);
 
   const apply = React.useCallback((event: TheatreEvent) => {
     setTheatre((current) => {
@@ -112,7 +114,7 @@ function Workspace() {
             <option>ent-0003</option><option>ent-0004</option>
           </select>
         </div>
-        <Button variant="secondary">Call TBX</Button>
+        <Button variant="secondary" onClick={() => setCallOpen(true)}>Call TBX</Button>
       </header>
 
       <PulseStrip entityId={entity} onAsk={(text) => { setQuestion(text); ask(text); }} />
@@ -162,6 +164,11 @@ function Workspace() {
           )}
         </main>
       </div>
+
+      <CallSurface open={callOpen} fakeProvider={params.get("voice_provider") === "fake"}
+        pkg={pkg} sql={answer.sql} records={answer.records} filters={answer.filters}
+        onAsk={(text) => { setQuestion(text); ask(text); }}
+        onEnd={() => setCallOpen(false)} />
     </div>
   );
 }

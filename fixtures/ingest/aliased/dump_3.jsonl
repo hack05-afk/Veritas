@@ -1,0 +1,5 @@
+{"txnId": "txn-000000001", "AcctId": "acc-0001", "Value Date": "04/01/2026", "DrCr": "CR", "Narration": "NEFT/202601040001/HDFC/ARIHANT ENTERPRISES", "Amount": "25,000.00", "Ref No": "202601040001", "UTR": "HDFCN52026010401"}
+{"txnId": "txn-000000002", "AcctId": "acc-0001", "Value Date": "05-01-2026", "DrCr": "DR", "Narration": "NEFT/202601050002/ICIC/BALAJI TRADING COMPANY", "Amount": "Rs. 4,500.75", "Ref No": "202601050002", "UTR": "ICICN52026010502"}
+{"txnId": "txn-000000003", "AcctId": "acc-0002", "Value Date": "06/01/2026", "DrCr": "D", "Narration": "IMPS charges", "Amount": "12.00", "Ref No": "", "UTR": ""}
+{"txnId": "txn-000000004", "AcctId": "acc-0002", "Value Date": "25/12/2025", "DrCr": "", "Narration": "NEFT/202512250004/HDFC/KAVERI FOODS", "Amount": "(1,234.00)", "Ref No": "202512250004", "UTR": "HDFCN52025122504"}
+{"txnId": "txn-000000005", "AcctId": "acc-0002", "Value Date": "2026-02-11T16:05:00", "DrCr": "+", "Narration": "NEFT/202602110005/ICIC/LAXMI ENGINEERING", "Amount": "15750.50", "Ref No": "202602110005", "UTR": null}

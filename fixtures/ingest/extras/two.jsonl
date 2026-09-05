@@ -1,0 +1,2 @@
+{"account_id": "acc-0001", "entity_id": "ent-0001", "account_number": "100200300401", "program_id": "PRG-COLLECT", "available_balance": 15000.5, "bank_code": "HDFC"}
+{"account_id": "acc-0002", "entity_id": "ent-0001", "account_number": "100200300402", "program_id": "PRG-PAYOUT", "available_balance": 2500.25, "bank_code": "ICIC"}

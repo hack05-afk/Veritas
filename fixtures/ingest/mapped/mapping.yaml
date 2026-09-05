@@ -1,0 +1,3 @@
+# Explicit overrides, for when the auto detection cannot see what a column is.
+transaction:
+  transaction_amount: figure

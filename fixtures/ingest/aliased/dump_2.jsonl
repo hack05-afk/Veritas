@@ -1,0 +1,2 @@
+{"AcctId": "acc-0001", "Entity": "ent-0001", "Account No": "100200300401", "Programme Id": "PRG-COLLECT", "Closing Balance": "15,000.50", "Bank": "HDFC"}
+{"AcctId": "acc-0002", "Entity": "ent-0001", "Account No": "100200300402", "Programme Id": "PRG-PAYOUT", "Closing Balance": "(2,500.25)", "Bank": "ICIC"}

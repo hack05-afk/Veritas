@@ -1,0 +1,20 @@
+{
+  "primary": {
+    "value": null,
+    "rows": [],
+    "row_count": 0,
+    "sql": ""
+  },
+  "alternatives": [],
+  "evidence": {
+    "ref": "ev-refusal-0003",
+    "page": 1,
+    "page_size": 50,
+    "total": 0,
+    "records": []
+  },
+  "anomalies": [],
+  "resolver_samples": [],
+  "data_bounds": { "min_date": "2025-11-01", "max_date": "2026-06-30" },
+  "timing_ms": 0
+}

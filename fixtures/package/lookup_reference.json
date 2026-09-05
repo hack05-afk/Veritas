@@ -1,0 +1,24 @@
+{
+  "question": "Find the transaction with reference 1715499972",
+  "answer_value": 14866.00,
+  "answer_unit": "INR",
+  "period_label": null,
+  "interpretation_text": "Matched on transaction_reference_id across all accounts, both directions",
+  "verdict": {
+    "status": "Stable",
+    "max_variance_pct": 0,
+    "axis": null,
+    "materiality_ok": false,
+    "single_reading": true,
+    "thresholds": { "stable": 5, "sensitive": 15 }
+  },
+  "alternatives": [],
+  "breakdown": [],
+  "evidence_ref": "conv-fixture-004/1",
+  "anomalies": [],
+  "allowed_numbers": [14866, 0],
+  "clarification": null,
+  "refusal": null,
+  "explanation": "That reference matches one debit of fourteen thousand eight hundred and sixty six rupees to SELECTION ELECTRONICS. There is only one reading of a reference lookup, so the number does not move.",
+  "explanation_source": "template"
+}

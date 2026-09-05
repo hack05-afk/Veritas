@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tbx.local/contracts/query_plan.schema.json",
+  "title": "QueryPlan",
+  "description": "The structured plan produced by the language model. A plan is one of: a computable query, a clarification request, or a refusal.",
+  "oneOf": [
+    { "$ref": "#/$defs/computable_plan" },
+    { "$ref": "#/$defs/clarification_plan" },
+    { "$ref": "#/$defs/refusal_plan" }
+  ],
+  "$defs": {
+    "computable_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "metric", "filters", "group_by"],
+      "properties": {
+        "intent": {
+          "type": "string",
+          "enum": [
+            "spend_total",
+            "spend_by_channel",
+            "spend_by_counterparty",
+            "counterparty_ranking",
+            "receipts_total",
+            "balance",
+            "reconciliation_balance",
+            "reconciliation_transfers",
+            "unreferenced",
+            "lookup_reference",
+            "period_compare"
+          ]
+        },
+        "metric": { "type": "string", "enum": ["sum_amount", "count", "avg_amount", "balance"] },
+        "filters": { "$ref": "#/$defs/filters" },
+        "group_by": { "type": "string", "enum": ["none", "channel", "counterparty", "account", "month"] },
+        "sort": { "type": "string", "enum": ["desc", "asc"] },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "interpretation": { "$ref": "#/$defs/interpretation" },
+        "run_alternatives": { "type": "boolean" },
+        "run_anomaly": { "type": "boolean" },
+        "conversation_id": { "type": "string" },
+        "turn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "clarification_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clarification"],
+      "properties": {
+        "clarification": { "$ref": "#/$defs/clarification" },
+        "conversation_id": { "type": "string" },
+        "turn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "refusal_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refusal"],
+      "properties": {
+        "refusal": { "$ref": "#/$defs/refusal" },
+        "conversation_id": { "type": "string" },
+        "turn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transaction_type", "period"],
+      "properties": {
+        "entity_id": { "type": ["string", "null"] },
+        "account_ids": {
+          "anyOf": [
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "null" }
+          ]
+        },
+        "transaction_type": { "type": "string", "enum": ["debit", "credit", "both"] },
+        "channels": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["NEFT", "IMPS", "UPI", "RTGS", "FT", "Charges", "Cheque", "Disbursement", "Other"]
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "counterparty": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["canonical", "match"],
+              "properties": {
+                "canonical": { "type": "string" },
+                "match": { "type": "string", "enum": ["exact", "family"] }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["value", "column"],
+              "properties": {
+                "value": { "type": "string" },
+                "column": { "type": "string", "enum": ["reference_id", "utr"] }
+              }
+            },
+            { "type": "null" }
+          ]
+        },
+        "period": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "start", "end", "label"],
+              "properties": {
+                "kind": { "type": "string", "enum": ["calendar", "trailing"] },
+                "start": { "type": "string", "format": "date" },
+                "end": { "type": "string", "format": "date" },
+                "label": { "type": "string" }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "interpretation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spend": { "type": "string", "enum": ["debits", "net"] },
+        "charges": { "type": "string", "enum": ["include", "exclude"] },
+        "scope": { "type": "string", "enum": ["entity", "account"] }
+      }
+    },
+    "clarification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "options"],
+      "properties": {
+        "question": { "type": "string" },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label"],
+            "properties": {
+              "label": { "type": "string" },
+              "plan_patch": { "type": ["object", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "refusal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "can_do"],
+      "properties": {
+        "reason": { "type": "string" },
+        "can_do": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

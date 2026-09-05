@@ -1,0 +1,30 @@
+{
+  "intent": "counterparty_ranking",
+  "metric": "sum_amount",
+  "filters": {
+    "entity_id": "ent-0001",
+    "account_ids": null,
+    "transaction_type": "debit",
+    "channels": ["NEFT", "IMPS", "UPI", "RTGS", "FT"],
+    "counterparty": null,
+    "reference": null,
+    "period": {
+      "kind": "calendar",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "label": "April to June 2026"
+    }
+  },
+  "group_by": "counterparty",
+  "sort": "desc",
+  "limit": 5,
+  "interpretation": {
+    "spend": "debits",
+    "charges": "include",
+    "scope": "entity"
+  },
+  "run_alternatives": true,
+  "run_anomaly": true,
+  "conversation_id": "conv-fixture-002",
+  "turn": 1
+}

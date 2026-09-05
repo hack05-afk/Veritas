@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tbx.local/contracts/speech_payload.schema.json",
+  "title": "SpeechPayload",
+  "description": "Request and response bodies for the two voice endpoints. A payload is exactly one of the four shapes.",
+  "oneOf": [
+    { "$ref": "#/$defs/transcribe_request" },
+    { "$ref": "#/$defs/transcribe_response" },
+    { "$ref": "#/$defs/speak_request" },
+    { "$ref": "#/$defs/speak_response" }
+  ],
+  "$defs": {
+    "transcribe_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audio", "hint_lang"],
+      "properties": {
+        "audio": { "type": "string", "contentEncoding": "base64" },
+        "hint_lang": { "type": "string" },
+        "filename": { "type": ["string", "null"] }
+      }
+    },
+    "transcribe_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_en", "detected_lang", "transcript_native"],
+      "properties": {
+        "text_en": { "type": "string" },
+        "detected_lang": { "type": "string" },
+        "transcript_native": { "type": "string" }
+      }
+    },
+    "speak_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_en", "target_lang"],
+      "properties": {
+        "text_en": { "type": "string" },
+        "target_lang": { "type": "string" }
+      }
+    },
+    "speak_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_native", "audio_base64", "format"],
+      "properties": {
+        "text_native": { "type": "string" },
+        "audio_base64": { "type": "string" },
+        "format": { "type": "string", "enum": ["wav", "mp3"] }
+      }
+    }
+  }
+}

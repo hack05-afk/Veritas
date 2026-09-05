@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tbx.local/contracts/theatre_event.schema.json",
+  "title": "TheatreEvent",
+  "description": "One server-sent event in the Reasoning Theatre stream. artifact is stage specific: a partial QueryPlan, a validation checklist, sql and rows, alternatives, or the VerifiedResultPackage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["stage", "state", "ts"],
+  "properties": {
+    "stage": { "type": "string", "enum": ["understand", "verify", "compute", "test", "answer"] },
+    "state": { "type": "string", "enum": ["start", "progress", "done", "skipped", "error"] },
+    "artifact": { "type": ["object", "array", "string", "number", "boolean", "null"] },
+    "note": { "type": ["string", "null"] },
+    "ts": { "type": "number" }
+  }
+}

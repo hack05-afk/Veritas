@@ -1,0 +1,8 @@
+{
+  "name": "@tbx/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Design tokens and components shared by the TBX web app.",
+  "main": "index.ts",
+  "types": "index.ts"
+}

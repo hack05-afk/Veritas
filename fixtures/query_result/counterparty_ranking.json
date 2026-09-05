@@ -1,0 +1,81 @@
+{
+  "primary": {
+    "value": 1398550.50,
+    "rows": [
+      { "key": "SELECTION ELECTRONICS", "value": 412000.00, "count": 7 },
+      { "key": "RELIANCEDIGITAL RETAIL", "value": 388500.00, "count": 12 },
+      { "key": "PARESH VIKRANT GHASE", "value": 245000.00, "count": 3 },
+      { "key": "SELECTION MOBILE", "value": 198750.50, "count": 9 },
+      { "key": "UMANG SELECTION", "value": 154300.00, "count": 5 }
+    ],
+    "row_count": 5,
+    "sql": "SELECT counterparty_canonical AS key, sum(transaction_amount) AS value, count(*) AS count FROM transactions WHERE transaction_type = 'debit' AND entity_id = ? AND channel IN ('NEFT','IMPS','UPI','RTGS','FT') AND transaction_date >= ? AND transaction_date < ? GROUP BY key ORDER BY value DESC LIMIT 5"
+  },
+  "alternatives": [
+    { "axis": "counterparty_match", "reading": "family", "value": 1552300.00 },
+    { "axis": "charges", "reading": "exclude", "value": 1396200.00 },
+    { "axis": "period", "reading": "trailing", "value": 1341900.00 }
+  ],
+  "evidence": {
+    "ref": "ev-rank-0002",
+    "page": 1,
+    "page_size": 50,
+    "total": 36,
+    "records": [
+      {
+        "transaction_id": "txn-000001",
+        "date": "2026-06-24T18:24:06",
+        "type": "debit",
+        "amount": 14866.00,
+        "channel": "FT",
+        "counterparty": "SELECTION ELECTRONICS",
+        "account_masked": "••••9069",
+        "reference_id": "1715499972",
+        "utr_masked": "••••01p6",
+        "description": "FT -  ******** -  ****9069 - SELECTION ELECTRONICS   MUMBAI",
+        "parse_confidence": 1.0
+      }
+    ]
+  },
+  "anomalies": [
+    { "kind": "counterparty_spike", "subject": "SELECTION MOBILE", "ratio": 3.2, "baseline_periods": 3 }
+  ],
+  "resolver_samples": [
+    {
+      "description": "NEFT/************/ICIC/SELECTION MOBILE",
+      "channel": "NEFT",
+      "counterparty": "SELECTION MOBILE",
+      "tokens": [
+        { "text": "NEFT", "role": "channel" },
+        { "text": "************", "role": "reference" },
+        { "text": "ICIC", "role": "bank_code" },
+        { "text": "SELECTION MOBILE", "role": "counterparty" }
+      ]
+    },
+    {
+      "description": "IMPS/P2A/************/KKBK/****2345/00/INET/8841/UMANGSELECTION/DPF10129/INWD48",
+      "channel": "IMPS",
+      "counterparty": "UMANGSELECTION",
+      "tokens": [
+        { "text": "IMPS", "role": "channel" },
+        { "text": "************", "role": "reference" },
+        { "text": "KKBK", "role": "bank_code" },
+        { "text": "****2345", "role": "account_number" },
+        { "text": "UMANGSELECTION", "role": "counterparty" }
+      ]
+    },
+    {
+      "description": "R/UTIB0000042/CMS8841//RELIANCEDIGITAL RETAIL PRIVATE LIMITED/CMS8841 /RELIANCEDIGITAL RETAIL PRIVATE LIMITED",
+      "channel": "Disbursement",
+      "counterparty": "RELIANCEDIGITAL RETAIL",
+      "tokens": [
+        { "text": "R", "role": "channel" },
+        { "text": "UTIB0000042", "role": "ifsc" },
+        { "text": "CMS8841", "role": "reference" },
+        { "text": "RELIANCEDIGITAL RETAIL PRIVATE LIMITED", "role": "counterparty" }
+      ]
+    }
+  ],
+  "data_bounds": { "min_date": "2025-11-01", "max_date": "2026-06-30" },
+  "timing_ms": 63
+}

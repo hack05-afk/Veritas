@@ -1,0 +1,25 @@
+{
+  "intent": "reconciliation_balance",
+  "metric": "balance",
+  "filters": {
+    "entity_id": "ent-0001",
+    "account_ids": null,
+    "transaction_type": "both",
+    "channels": null,
+    "counterparty": null,
+    "reference": null,
+    "period": null
+  },
+  "group_by": "account",
+  "sort": "desc",
+  "limit": 50,
+  "interpretation": {
+    "spend": "debits",
+    "charges": "include",
+    "scope": "entity"
+  },
+  "run_alternatives": false,
+  "run_anomaly": false,
+  "conversation_id": "conv-fixture-005",
+  "turn": 1
+}

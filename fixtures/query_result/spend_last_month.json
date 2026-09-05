@@ -1,0 +1,71 @@
+{
+  "primary": {
+    "value": 1240000.00,
+    "rows": [
+      { "key": "NEFT", "value": 520000.00, "count": 412 },
+      { "key": "IMPS", "value": 310500.00, "count": 968 },
+      { "key": "UPI", "value": 188300.00, "count": 1204 },
+      { "key": "FT", "value": 168700.00, "count": 391 },
+      { "key": "Charges", "value": 52500.00, "count": 145 }
+    ],
+    "row_count": 3120,
+    "sql": "SELECT channel AS key, sum(transaction_amount) AS value, count(*) AS count FROM transactions WHERE transaction_type = 'debit' AND entity_id = ? AND transaction_date >= ? AND transaction_date < ? GROUP BY channel ORDER BY value DESC"
+  },
+  "alternatives": [
+    { "axis": "spend", "reading": "net", "value": 1148800.00 },
+    { "axis": "charges", "reading": "exclude", "value": 1187500.00 },
+    { "axis": "period", "reading": "trailing", "value": 1305200.00 }
+  ],
+  "evidence": {
+    "ref": "ev-spend-0001",
+    "page": 1,
+    "page_size": 50,
+    "total": 3120,
+    "records": [
+      {
+        "transaction_id": "txn-000001",
+        "date": "2026-06-24T18:24:06",
+        "type": "debit",
+        "amount": 14866.00,
+        "channel": "FT",
+        "counterparty": "SELECTION ELECTRONICS",
+        "account_masked": "••••9069",
+        "reference_id": "1715499972",
+        "utr_masked": "••••01p6",
+        "description": "FT -  ******** -  ****9069 - SELECTION ELECTRONICS   MUMBAI",
+        "parse_confidence": 1.0
+      },
+      {
+        "transaction_id": "txn-000002",
+        "date": "2026-06-22T11:02:41",
+        "type": "debit",
+        "amount": 245000.00,
+        "channel": "NEFT",
+        "counterparty": "PARESH VIKRANT GHASE",
+        "account_masked": "••••9069",
+        "reference_id": "1715488310",
+        "utr_masked": null,
+        "description": "NEFT  - HDFC0000123 - ******** - ****9069 - PARESH VIKRANT GHASE",
+        "parse_confidence": 1.0
+      }
+    ]
+  },
+  "anomalies": [
+    { "kind": "counterparty_spike", "subject": "SELECTION MOBILE", "ratio": 3.2, "baseline_periods": 3 }
+  ],
+  "resolver_samples": [
+    {
+      "description": "FT -  ******** -  ****9069 - SELECTION ELECTRONICS   MUMBAI",
+      "channel": "FT",
+      "counterparty": "SELECTION ELECTRONICS",
+      "tokens": [
+        { "text": "FT", "role": "channel" },
+        { "text": "********", "role": "reference" },
+        { "text": "****9069", "role": "account_number" },
+        { "text": "SELECTION ELECTRONICS   MUMBAI", "role": "counterparty" }
+      ]
+    }
+  ],
+  "data_bounds": { "min_date": "2025-11-01", "max_date": "2026-06-30" },
+  "timing_ms": 41
+}

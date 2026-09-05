@@ -1,0 +1,28 @@
+{
+  "intent": "lookup_reference",
+  "metric": "sum_amount",
+  "filters": {
+    "entity_id": null,
+    "account_ids": null,
+    "transaction_type": "both",
+    "channels": null,
+    "counterparty": null,
+    "reference": {
+      "value": "1715499972",
+      "column": "reference_id"
+    },
+    "period": null
+  },
+  "group_by": "none",
+  "sort": "desc",
+  "limit": 50,
+  "interpretation": {
+    "spend": "debits",
+    "charges": "include",
+    "scope": "entity"
+  },
+  "run_alternatives": false,
+  "run_anomaly": false,
+  "conversation_id": "conv-fixture-004",
+  "turn": 1
+}

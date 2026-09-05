@@ -1,0 +1,36 @@
+{
+  "question": "What did we spend last month?",
+  "answer_value": 1240000.00,
+  "answer_unit": "INR",
+  "period_label": "June 2026",
+  "interpretation_text": "Debits only, bank charges included, all accounts of the entity, calendar month",
+  "verdict": {
+    "status": "Sensitive",
+    "max_variance_pct": 7.35,
+    "axis": "spend",
+    "materiality_ok": true,
+    "single_reading": false,
+    "thresholds": { "stable": 5, "sensitive": 15 }
+  },
+  "alternatives": [
+    { "axis": "spend", "reading": "net", "value": 1148800.00, "variance_pct": 7.35 },
+    { "axis": "charges", "reading": "exclude", "value": 1187500.00, "variance_pct": 4.23 },
+    { "axis": "period", "reading": "trailing", "value": 1305200.00, "variance_pct": 5.26 }
+  ],
+  "breakdown": [
+    { "key": "NEFT", "value": 520000.00, "count": 412 },
+    { "key": "IMPS", "value": 310500.00, "count": 968 },
+    { "key": "UPI", "value": 188300.00, "count": 1204 },
+    { "key": "FT", "value": 168700.00, "count": 391 },
+    { "key": "Charges", "value": 52500.00, "count": 145 }
+  ],
+  "evidence_ref": "conv-fixture-001/1",
+  "anomalies": [
+    { "kind": "counterparty_spike", "subject": "SELECTION MOBILE", "ratio": 3.2, "baseline_periods": 3 }
+  ],
+  "allowed_numbers": [1240000, 1148800, 1187500, 1305200, 7.35, 4.23, 5.26, 520000, 310500, 188300, 168700, 52500, 412, 968, 1204, 391, 145, 3.2, 3],
+  "clarification": null,
+  "refusal": null,
+  "explanation": "Spend last month was twelve lakh forty thousand rupees, counting debits only with bank charges included. Reading it as net of credits instead would move the number, so treat it as sensitive to that choice.",
+  "explanation_source": "template"
+}

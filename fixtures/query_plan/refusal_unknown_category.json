@@ -1,0 +1,15 @@
+{
+  "refusal": {
+    "reason": "The dataset has no category column, and TBX does not invent one. Marketing spend cannot be derived from a bank narration without guessing.",
+    "can_do": [
+      "Spend for a period, in total or split by channel",
+      "Spend or receipts for a named counterparty",
+      "A ranking of counterparties by amount paid",
+      "Balances per account or per entity",
+      "A lookup by reference number or UTR",
+      "Reconciliation checks: balance gaps, unmatched transfers, unreferenced rows"
+    ]
+  },
+  "conversation_id": "conv-fixture-003",
+  "turn": 1
+}

@@ -1,0 +1,21 @@
+{
+  "name": "tbx-truth-engine",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A grounded finance assistant over a bank, account and transaction ledger.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/web",
+    "start": "npm run start --workspace apps/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

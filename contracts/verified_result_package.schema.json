@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tbx.local/contracts/verified_result_package.schema.json",
+  "title": "VerifiedResultPackage",
+  "description": "Everything the Truth Panel, the explanation model and the Speech Writer are allowed to see. allowed_numbers is the grounding check: any digit sequence in generated text that is not in this list fails.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["question", "answer_value", "answer_unit", "period_label", "interpretation_text", "verdict", "alternatives", "breakdown", "evidence_ref", "anomalies", "allowed_numbers", "clarification", "refusal", "explanation", "explanation_source"],
+  "properties": {
+    "question": { "type": "string" },
+    "answer_value": { "type": ["number", "null"] },
+    "answer_unit": { "type": "string", "enum": ["INR", "count", "none"] },
+    "period_label": { "type": ["string", "null"] },
+    "interpretation_text": { "type": "string" },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "max_variance_pct", "axis", "materiality_ok", "single_reading", "thresholds"],
+      "properties": {
+        "status": { "type": "string", "enum": ["Stable", "Sensitive", "Fragile"] },
+        "max_variance_pct": { "type": "number", "minimum": 0 },
+        "axis": {
+          "type": ["string", "null"],
+          "enum": ["spend", "charges", "counterparty_match", "period", "scope", "reference", null]
+        },
+        "materiality_ok": { "type": "boolean" },
+        "single_reading": { "type": "boolean" },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stable", "sensitive"],
+          "properties": {
+            "stable": { "type": "number" },
+            "sensitive": { "type": "number" }
+          }
+        }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["axis", "reading", "value", "variance_pct"],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "enum": ["spend", "charges", "counterparty_match", "period", "scope", "reference"]
+          },
+          "reading": {
+            "type": "string",
+            "enum": ["debits", "net", "include", "exclude", "exact", "family", "calendar", "trailing", "entity", "account", "reference_id", "utr"]
+          },
+          "value": { "type": ["number", "null"] },
+          "variance_pct": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "value"],
+        "properties": {
+          "key": { "type": "string" },
+          "value": { "type": "number" },
+          "count": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "evidence_ref": { "type": ["string", "null"] },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "subject", "ratio", "baseline_periods"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["counterparty_spike"] },
+          "subject": { "type": "string" },
+          "ratio": { "type": "number" },
+          "baseline_periods": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "allowed_numbers": { "type": "array", "items": { "type": "number" } },
+    "clarification": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["question", "options"],
+          "properties": {
+            "question": { "type": "string" },
+            "options": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["label"],
+                "properties": {
+                  "label": { "type": "string" },
+                  "plan_patch": { "type": ["object", "null"] }
+                }
+              }
+            }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "refusal": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "can_do"],
+          "properties": {
+            "reason": { "type": "string" },
+            "can_do": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "explanation": { "type": "string" },
+    "explanation_source": { "type": "string", "enum": ["model", "template"] }
+  }
+}

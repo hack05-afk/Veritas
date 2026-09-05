@@ -1,0 +1,34 @@
+{
+  "primary": {
+    "value": 14866.00,
+    "rows": [],
+    "row_count": 1,
+    "sql": "SELECT * FROM transactions WHERE transaction_reference_id = ? LIMIT 50"
+  },
+  "alternatives": [],
+  "evidence": {
+    "ref": "ev-lookup-0004",
+    "page": 1,
+    "page_size": 50,
+    "total": 1,
+    "records": [
+      {
+        "transaction_id": "txn-000001",
+        "date": "2026-06-24T18:24:06",
+        "type": "debit",
+        "amount": 14866.00,
+        "channel": "FT",
+        "counterparty": "SELECTION ELECTRONICS",
+        "account_masked": "••••9069",
+        "reference_id": "1715499972",
+        "utr_masked": "••••01p6",
+        "description": "FT -  ******** -  ****9069 - SELECTION ELECTRONICS   MUMBAI",
+        "parse_confidence": 1.0
+      }
+    ]
+  },
+  "anomalies": [],
+  "resolver_samples": [],
+  "data_bounds": { "min_date": "2025-11-01", "max_date": "2026-06-30" },
+  "timing_ms": 12
+}

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tbx.local/contracts/query_result.schema.json",
+  "title": "QueryResult",
+  "description": "The deterministic answer computed by the query service. Every sensitive column is already masked.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["primary", "alternatives", "evidence", "anomalies", "resolver_samples", "data_bounds", "timing_ms"],
+  "properties": {
+    "primary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "rows", "row_count", "sql"],
+      "properties": {
+        "value": { "type": ["number", "null"] },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "value"],
+            "properties": {
+              "key": { "type": "string" },
+              "value": { "type": "number" },
+              "count": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "row_count": { "type": "integer", "minimum": 0 },
+        "sql": { "type": "string" }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["axis", "reading", "value"],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "enum": ["spend", "charges", "counterparty_match", "period", "scope", "reference"]
+          },
+          "reading": {
+            "type": "string",
+            "enum": ["debits", "net", "include", "exclude", "exact", "family", "calendar", "trailing", "entity", "account", "reference_id", "utr"]
+          },
+          "value": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "page", "page_size", "total", "records"],
+      "properties": {
+        "ref": { "type": "string" },
+        "page": { "type": "integer", "minimum": 1 },
+        "page_size": { "type": "integer", "minimum": 1 },
+        "total": { "type": "integer", "minimum": 0 },
+        "records": { "type": "array", "items": { "$ref": "#/$defs/record" } }
+      }
+    },
+    "anomalies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "subject", "ratio", "baseline_periods"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["counterparty_spike"] },
+          "subject": { "type": "string" },
+          "ratio": { "type": "number" },
+          "baseline_periods": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "resolver_samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description", "channel", "counterparty", "tokens"],
+        "properties": {
+          "description": { "type": "string" },
+          "channel": {
+            "type": "string",
+            "enum": ["NEFT", "IMPS", "UPI", "RTGS", "FT", "Charges", "Cheque", "Disbursement", "Other"]
+          },
+          "counterparty": { "type": ["string", "null"] },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text", "role"],
+              "properties": {
+                "text": { "type": "string" },
+                "role": {
+                  "type": "string",
+                  "enum": ["channel", "ifsc", "bank_code", "account_number", "masked_account", "reference", "counterparty", "location", "unknown"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "data_bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_date", "max_date"],
+      "properties": {
+        "min_date": { "type": "string", "format": "date" },
+        "max_date": { "type": "string", "format": "date" }
+      }
+    },
+    "timing_ms": { "type": "number", "minimum": 0 }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transaction_id", "date", "type", "amount", "channel", "counterparty", "account_masked", "reference_id", "utr_masked", "description", "parse_confidence"],
+      "properties": {
+        "transaction_id": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string", "enum": ["debit", "credit"] },
+        "amount": { "type": "number" },
+        "channel": {
+          "type": "string",
+          "enum": ["NEFT", "IMPS", "UPI", "RTGS", "FT", "Charges", "Cheque", "Disbursement", "Other"]
+        },
+        "counterparty": { "type": ["string", "null"] },
+        "account_masked": { "type": ["string", "null"] },
+        "reference_id": { "type": ["string", "null"] },
+        "utr_masked": { "type": ["string", "null"] },
+        "description": { "type": "string" },
+        "parse_confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

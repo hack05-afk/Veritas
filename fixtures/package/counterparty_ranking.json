@@ -1,0 +1,36 @@
+{
+  "question": "Who were our top five counterparties last quarter?",
+  "answer_value": 1398550.50,
+  "answer_unit": "INR",
+  "period_label": "April to June 2026",
+  "interpretation_text": "Debits on transfer channels only, exact counterparty names, all accounts of the entity, calendar quarter",
+  "verdict": {
+    "status": "Sensitive",
+    "max_variance_pct": 10.99,
+    "axis": "counterparty_match",
+    "materiality_ok": true,
+    "single_reading": false,
+    "thresholds": { "stable": 5, "sensitive": 15 }
+  },
+  "alternatives": [
+    { "axis": "counterparty_match", "reading": "family", "value": 1552300.00, "variance_pct": 10.99 },
+    { "axis": "charges", "reading": "exclude", "value": 1396200.00, "variance_pct": 0.17 },
+    { "axis": "period", "reading": "trailing", "value": 1341900.00, "variance_pct": 4.05 }
+  ],
+  "breakdown": [
+    { "key": "SELECTION ELECTRONICS", "value": 412000.00, "count": 7 },
+    { "key": "RELIANCEDIGITAL RETAIL", "value": 388500.00, "count": 12 },
+    { "key": "PARESH VIKRANT GHASE", "value": 245000.00, "count": 3 },
+    { "key": "SELECTION MOBILE", "value": 198750.50, "count": 9 },
+    { "key": "UMANG SELECTION", "value": 154300.00, "count": 5 }
+  ],
+  "evidence_ref": "conv-fixture-002/1",
+  "anomalies": [
+    { "kind": "counterparty_spike", "subject": "SELECTION MOBILE", "ratio": 3.2, "baseline_periods": 3 }
+  ],
+  "allowed_numbers": [1398550.5, 1552300, 1396200, 1341900, 10.99, 0.17, 4.05, 412000, 388500, 245000, 198750.5, 154300, 7, 12, 3, 9, 5, 3.2],
+  "clarification": null,
+  "refusal": null,
+  "explanation": "The five largest counterparties took thirteen lakh ninety eight thousand five hundred and fifty rupees and fifty paise over the last quarter. Three of those names share a first word, so grouping them as one family changes the total.",
+  "explanation_source": "template"
+}

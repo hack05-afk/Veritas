@@ -1,0 +1,11 @@
+node_modules/
+.next/
+__pycache__/
+*.pyc
+dist/
+*.parquet
+data/
+.venv/
+coverage/
+playwright-report/
+test-results/

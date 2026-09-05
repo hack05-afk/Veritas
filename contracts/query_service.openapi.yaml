@@ -1,0 +1,221 @@
+openapi: 3.1.0
+info:
+  title: TBX query service
+  version: 1.0.0
+  description: >
+    Deterministic computation over the bank, account and transaction tables.
+    Every request is a QueryPlan; every response is already masked. The service
+    is stateless apart from a small cache of recent plans used by /evidence.
+servers:
+  - url: http://localhost:8000
+    description: Local development
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Readiness, row count and resolver coverage
+      responses:
+        "200":
+          description: Service state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, service, rows, resolver_coverage]
+                properties:
+                  ok: { type: boolean }
+                  service: { type: string, const: query }
+                  rows: { type: integer }
+                  resolver_coverage:
+                    type: [number, "null"]
+  /query:
+    post:
+      operationId: runQuery
+      summary: Compute one QueryPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: query_plan.schema.json
+      responses:
+        "200":
+          description: The computed result
+          content:
+            application/json:
+              schema:
+                $ref: query_result.schema.json
+        "422":
+          description: The plan failed schema validation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+  /evidence:
+    get:
+      operationId: getEvidence
+      summary: A further page of records for a previous result
+      parameters:
+        - name: ref
+          in: query
+          required: true
+          schema: { type: string }
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, default: 1 }
+      responses:
+        "200":
+          description: One page of masked records
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ref, page, page_size, total, records]
+                properties:
+                  ref: { type: string }
+                  page: { type: integer }
+                  page_size: { type: integer }
+                  total: { type: integer }
+                  records:
+                    type: array
+                    items:
+                      $ref: "query_result.schema.json#/$defs/record"
+        "404":
+          description: Unknown or expired ref
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+  /pulse:
+    get:
+      operationId: getPulse
+      summary: Ledger Pulse tiles, cached per entity
+      parameters:
+        - name: entity_id
+          in: query
+          required: false
+          schema: { type: [string, "null"] }
+      responses:
+        "200":
+          description: Five tiles, each with the question that reproduces it
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Pulse" }
+  /catalog:
+    get:
+      operationId: getCatalog
+      summary: Entities, masked accounts, banks, channels, top counterparties, data bounds
+      responses:
+        "200":
+          description: Catalog used by the orchestrator for validation and synonyms
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Catalog" }
+components:
+  schemas:
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail: { type: [string, array, object] }
+    Pulse:
+      type: object
+      required: [accounts, balance_check, largest_debits, unreferenced, spikes]
+      properties:
+        accounts:
+          type: object
+          required: [count, banks, question]
+          properties:
+            count: { type: integer }
+            banks:
+              type: array
+              items: { type: string }
+            question: { type: string }
+        balance_check:
+          type: object
+          required: [accounts, question]
+          properties:
+            accounts:
+              type: array
+              items:
+                type: object
+                required: [account_masked, gap]
+                properties:
+                  account_masked: { type: string }
+                  gap: { type: number }
+            question: { type: string }
+        largest_debits:
+          type: object
+          required: [items, question]
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                required: [amount, counterparty, date]
+                properties:
+                  amount: { type: number }
+                  counterparty: { type: [string, "null"] }
+                  date: { type: string }
+            question: { type: string }
+        unreferenced:
+          type: object
+          required: [count, question]
+          properties:
+            count: { type: integer }
+            question: { type: string }
+        spikes:
+          type: object
+          required: [items, question]
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                required: [subject, ratio]
+                properties:
+                  subject: { type: string }
+                  ratio: { type: number }
+            question: { type: string }
+    Catalog:
+      type: object
+      required: [entities, accounts, banks, channels, counterparties, data_bounds]
+      properties:
+        entities:
+          type: array
+          items: { type: string }
+        accounts:
+          type: array
+          items:
+            type: object
+            required: [account_id, account_masked, bank_code, entity_id]
+            properties:
+              account_id: { type: string }
+              account_masked: { type: string }
+              bank_code: { type: string }
+              entity_id: { type: string }
+        banks:
+          type: array
+          items:
+            type: object
+            required: [bank_code, bank_name]
+            properties:
+              bank_code: { type: string }
+              bank_name: { type: string }
+        channels:
+          type: array
+          items: { type: string }
+        counterparties:
+          type: array
+          items:
+            type: object
+            required: [canonical, family, count]
+            properties:
+              canonical: { type: string }
+              family: { type: string }
+              count: { type: integer }
+        data_bounds:
+          type: object
+          required: [min_date, max_date]
+          properties:
+            min_date: { type: string }
+            max_date: { type: string }

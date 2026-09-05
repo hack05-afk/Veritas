@@ -1,0 +1,28 @@
+{
+  "question": "Does our balance match the transactions?",
+  "answer_value": 105250.25,
+  "answer_unit": "INR",
+  "period_label": null,
+  "interpretation_text": "Available balance compared with credits minus debits, per account, reported as a gap and not as an error",
+  "verdict": {
+    "status": "Stable",
+    "max_variance_pct": 0,
+    "axis": null,
+    "materiality_ok": false,
+    "single_reading": true,
+    "thresholds": { "stable": 5, "sensitive": 15 }
+  },
+  "alternatives": [],
+  "breakdown": [
+    { "key": "acc-0009", "value": 88000.00 },
+    { "key": "acc-0002", "value": 12500.00 },
+    { "key": "acc-0006", "value": 4750.25 }
+  ],
+  "evidence_ref": "conv-fixture-005/1",
+  "anomalies": [],
+  "allowed_numbers": [105250.25, 88000, 12500, 4750.25, 0],
+  "clarification": null,
+  "refusal": null,
+  "explanation": "Three accounts carry a gap between the available balance and the sum of their transactions, one lakh five thousand two hundred and fifty rupees and twenty five paise in total. A gap is not an error on its own, so the accounts are listed for you to check.",
+  "explanation_source": "template"
+}

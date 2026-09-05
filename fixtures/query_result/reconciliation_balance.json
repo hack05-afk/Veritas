@@ -1,0 +1,24 @@
+{
+  "primary": {
+    "value": 105250.25,
+    "rows": [
+      { "key": "acc-0009", "value": 88000.00, "count": 2411 },
+      { "key": "acc-0002", "value": 12500.00, "count": 1876 },
+      { "key": "acc-0006", "value": 4750.25, "count": 903 }
+    ],
+    "row_count": 3,
+    "sql": "SELECT a.account_id AS key, a.available_balance - coalesce(t.net, 0) AS value, coalesce(t.n, 0) AS count FROM accounts a LEFT JOIN (SELECT account_id, sum(CASE WHEN transaction_type = 'credit' THEN transaction_amount ELSE -transaction_amount END) AS net, count(*) AS n FROM transactions GROUP BY account_id) t USING (account_id) WHERE abs(a.available_balance - coalesce(t.net, 0)) > 0.005 ORDER BY abs(value) DESC"
+  },
+  "alternatives": [],
+  "evidence": {
+    "ref": "ev-recon-0005",
+    "page": 1,
+    "page_size": 50,
+    "total": 0,
+    "records": []
+  },
+  "anomalies": [],
+  "resolver_samples": [],
+  "data_bounds": { "min_date": "2025-11-01", "max_date": "2026-06-30" },
+  "timing_ms": 27
+}

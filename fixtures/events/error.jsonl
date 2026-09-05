@@ -1,0 +1,6 @@
+{"stage": "understand", "state": "start", "ts": 1782957600}
+{"stage": "understand", "state": "done", "ts": 1782957601, "artifact": {"intent": "spend_total", "metric": "sum_amount", "filters": {"entity_id": "ent-0001", "account_ids": null, "transaction_type": "debit", "channels": null, "counterparty": null, "reference": null, "period": {"kind": "calendar", "start": "2026-06-01", "end": "2026-06-30", "label": "June 2026"}}, "group_by": "channel", "sort": "desc", "limit": 10, "interpretation": {"spend": "debits", "charges": "include", "scope": "entity"}, "run_alternatives": true, "run_anomaly": true, "conversation_id": "conv-fixture-001", "turn": 1}}
+{"stage": "verify", "state": "start", "ts": 1782957602}
+{"stage": "verify", "state": "done", "ts": 1782957603, "artifact": [{"check": "intent is known", "ok": true}, {"check": "counterparty names exist in the catalog", "ok": true}, {"check": "period resolves inside the data bounds", "ok": true}, {"check": "no sensitive column is requested", "ok": true}]}
+{"stage": "compute", "state": "start", "ts": 1782957604, "artifact": {"sql": "SELECT ..."}}
+{"stage": "compute", "state": "error", "ts": 1782957605, "note": "The query service did not respond. Nothing was computed, so no answer is shown."}

@@ -58,38 +58,82 @@ export function CountUp({ value, decimals = false, prefix = "₹", durationMs = 
 }
 
 /** A live level meter drawn as bars, so it needs no canvas. */
-export function Waveform({ amplitude = 0.3, bars = 28, className = "" }:
+export function Waveform({ amplitude = 0.3, bars = 48, className = "" }:
   { amplitude?: number; bars?: number; className?: string }) {
   const heights = React.useMemo(
     () => Array.from({ length: bars }, (_, i) => {
       const shape = Math.sin((i / bars) * Math.PI);
-      return Math.max(0.08, Math.min(1, shape * (0.35 + amplitude)));
+      const grain = 0.75 + 0.25 * Math.sin(i * 2.399);
+      return Math.max(0.04, Math.min(1, shape * grain * (0.3 + amplitude)));
     }),
     [amplitude, bars],
   );
   return (
     <div data-kit="Waveform" data-amplitude={amplitude} aria-hidden="true"
-      className={`flex h-12 items-center gap-[3px] ${className}`}>
+      className={`flex h-16 items-center justify-center gap-[2px] ${className}`}>
       {heights.map((height, index) => (
         <span key={index}
-          className="w-[3px] rounded-full bg-[hsl(var(--brand))] transition-[height] duration-[var(--motion-fast)]"
-          style={{ height: `${Math.round(height * 100)}%` }} />
+          className="w-[2px] bg-[hsl(var(--accent))] transition-[height] duration-[var(--motion-fast)]"
+          style={{ height: `${Math.round(height * 100)}%`, opacity: 0.4 + height * 0.6 }} />
       ))}
     </div>
   );
 }
 
-/** The still stand-in for the ledger field, and the page's own backdrop. */
-export function GridBackground({ className = "" }: { className?: string }) {
+/**
+ * The page backdrop: an engineering grid, not a decoration. Two scales of rule
+ * so the eye reads a coordinate system rather than graph paper.
+ */
+export function GridBackground({ className = "", fade = true }: { className?: string; fade?: boolean }) {
+  const mask = "radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 78%)";
   return (
     <div data-kit="GridBackground" aria-hidden="true"
       className={`h-full w-full ${className}`}
       style={{
         backgroundImage:
-          "linear-gradient(hsl(var(--border)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px)",
-        backgroundSize: "32px 32px",
-        maskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
-        WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+          "linear-gradient(hsl(var(--rule-faint)) 1px, transparent 1px)," +
+          "linear-gradient(90deg, hsl(var(--rule-faint)) 1px, transparent 1px)," +
+          "linear-gradient(hsl(var(--rule)) 1px, transparent 1px)," +
+          "linear-gradient(90deg, hsl(var(--rule)) 1px, transparent 1px)",
+        backgroundSize: "24px 24px, 24px 24px, 120px 120px, 120px 120px",
+        ...(fade ? { maskImage: mask, WebkitMaskImage: mask } : {}),
       }} />
+  );
+}
+
+/**
+ * Light and dark. Stored per browser, applied as data-theme on the root so the
+ * token file does the rest. Wrapped in try/catch because storage throws in
+ * private windows and in preview capture.
+ */
+export function useTheme(): [string, (next: string) => void] {
+  const [theme, setThemeState] = React.useState("light");
+
+  React.useEffect(() => {
+    let saved: string | null = null;
+    try { saved = window.localStorage.getItem("veritas-theme"); } catch { saved = null; }
+    const initial = saved
+      ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setThemeState(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+  }, []);
+
+  const setTheme = React.useCallback((next: string) => {
+    setThemeState(next);
+    document.documentElement.setAttribute("data-theme", next);
+    try { window.localStorage.setItem("veritas-theme", next); } catch { /* storage unavailable */ }
+  }, []);
+
+  return [theme, setTheme];
+}
+
+export function ThemeToggle({ className = "" }: { className?: string }) {
+  const [theme, setTheme] = useTheme();
+  return (
+    <button type="button" data-kit="ThemeToggle" aria-label="Switch between light and dark"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className={`inline-flex h-7 items-center rounded-[var(--radius-sm)] border border-[hsl(var(--rule))] px-2 text-[length:var(--text-2xs)] font-medium uppercase tracking-[var(--tracking-label)] text-[hsl(var(--ink-3))] hover:text-[hsl(var(--ink))] ${className}`}>
+      {theme === "dark" ? "Dark" : "Light"}
+    </button>
   );
 }

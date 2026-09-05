@@ -1,53 +1,103 @@
-/* Veritas design tokens. Colours are HSL triplets so they compose with opacity. */
+/*
+ * Veritas design tokens.
+ *
+ * The product is an instrument, not a document. It is read at a desk, densely,
+ * by someone checking a number they already half-distrust. So: a near
+ * monochrome ink scale carries all structure, hairlines carry all separation,
+ * and colour is spent only where it means something - a live stage, a verdict,
+ * a figure that moved. Nothing is coloured for decoration.
+ *
+ * Colours are HSL triplets so they compose with opacity: hsl(var(--ink) / .6).
+ */
 
 :root {
-  --background: 162 9% 97.5%;
-  --foreground: 0 0% 10%;
-  --muted-foreground: 0 0% 40%;
-  --card: 0 0% 100%;
-  --border: 0 0% 91%;
-  --radius: 0.75rem;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 99%;
-  --brand: 169 46% 34%;
-  --brand-soft: 162 36% 95%;
-  --brand-text: 169 47% 28%;
-  --success: 157 67% 37%;
-  --success-soft: 152 44% 92%;
-  --success-text: 157 64% 29%;
-  --warning: 37 61% 47%;
-  --warning-soft: 38 71% 93%;
-  --warning-text: 38 70% 32%;
-  --danger: 6 63% 46%;
-  --danger-soft: 6 67% 94%;
-  --danger-text: 5 71% 34%;
-  --info: 221 83% 53%;
-  --info-soft: 223 84% 95%;
-  --info-text: 221 73% 42%;
-  --dataviz-primary: 40 5% 22%;
-  --dataviz-support: 169 46% 34%;
+  color-scheme: light;
 
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  /* Ground. Paper is very slightly warm so long tables do not glare. */
+  --paper: 40 14% 98%;
+  --surface: 0 0% 100%;
+  --surface-sunken: 40 10% 96%;
+  --surface-raised: 0 0% 100%;
 
-  /* Type scale. The product is read at arm's length on a laptop, so the base
-     is 16px rather than the 14px a dense dashboard would use. */
-  --text-xs: 0.8125rem;
-  --text-sm: 0.9375rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
-  --text-answer: 2.5rem;
+  /* Ink scale. Four steps, used strictly by rank:
+     ink   - the number, the answer, headings
+     ink-2 - body copy, labels that matter
+     ink-3 - units, captions, anything read second
+     ink-4 - disabled, placeholder */
+  --ink: 220 14% 11%;
+  --ink-2: 220 9% 30%;
+  --ink-3: 220 7% 47%;
+  --ink-4: 220 7% 66%;
 
-  /* Spacing rhythm. Everything is a multiple of 4px. */
+  /* Rules. A hairline is the primary separator; boxes are the exception. */
+  --rule: 220 13% 89%;
+  --rule-strong: 220 12% 79%;
+  --rule-faint: 220 14% 93%;
+
+  /* The single accent. Reserved for live state, focus, and the one link that
+     is the point of the screen. If everything is accented, nothing is. */
+  --accent: 176 58% 26%;
+  --accent-hover: 176 60% 21%;
+  --accent-soft: 172 34% 94%;
+  --accent-line: 176 40% 74%;
+
+  /* Verdicts. These three are the only other colours in the product, and they
+     appear only on a verdict, an anomaly, or a failed check. */
+  --stable: 158 46% 30%;
+  --stable-soft: 156 38% 94%;
+  --sensitive: 34 68% 36%;
+  --sensitive-soft: 38 72% 93%;
+  --fragile: 4 60% 44%;
+  --fragile-soft: 6 64% 95%;
+
+  /* Data visualisation. Ordered by rank, not by hue: the primary series is ink,
+     the comparison is accent, everything else is a lighter ink. */
+  --viz-1: 220 14% 18%;
+  --viz-2: 176 58% 30%;
+  --viz-3: 220 8% 58%;
+  --viz-4: 220 10% 78%;
+  --viz-grid: 220 14% 92%;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Type scale. 14px base: this is a dense working surface, not an article.
+     Only two sizes are large, and both are numbers rather than prose. */
+  --text-2xs: 0.6875rem;   /* 11px - table meta, stage labels */
+  --text-xs: 0.75rem;      /* 12px - captions, units */
+  --text-sm: 0.8125rem;    /* 13px - table body, secondary copy */
+  --text-base: 0.875rem;   /* 14px - body */
+  --text-md: 1rem;         /* 16px - lead paragraph */
+  --text-lg: 1.125rem;     /* 18px - panel titles */
+  --text-xl: 1.5rem;       /* 24px - section headings */
+  --text-2xl: 2rem;        /* 32px - page heading */
+  --text-display: 3.25rem; /* 52px - landing */
+  --text-answer: 2.75rem;  /* 44px - the answer value, the largest thing here */
+
+  /* Letter spacing. Tight on large type, open on small caps labels. */
+  --tracking-tight: -0.022em;
+  --tracking-snug: -0.012em;
+  --tracking-label: 0.08em;
+
+  /* Spacing on a 4px rhythm. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+
+  /* Corners are nearly square. A 12px radius reads as consumer software. */
+  --radius: 4px;
+  --radius-sm: 2px;
+  --radius-full: 999px;
+
+  /* Elevation is a rule plus a whisper, never a drop shadow. */
+  --shadow-1: 0 1px 2px hsl(220 14% 11% / 0.04);
+  --shadow-2: 0 1px 3px hsl(220 14% 11% / 0.06), 0 8px 24px hsl(220 14% 11% / 0.06);
 
   --motion-fast: 120ms;
   --motion-base: 200ms;
@@ -56,27 +106,165 @@
   --ease: cubic-bezier(.2, .8, .2, 1);
 }
 
+/* Dark is a real mode, not an inversion: paper becomes slate, the accent lifts
+   so it still reads at low luminance, and the rules get relatively stronger
+   because contrast falls away faster in the dark. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: 220 18% 8%;
+  --surface: 220 16% 11%;
+  --surface-sunken: 220 18% 7%;
+  --surface-raised: 220 14% 14%;
+
+  --ink: 220 16% 96%;
+  --ink-2: 220 10% 76%;
+  --ink-3: 220 8% 58%;
+  --ink-4: 220 8% 40%;
+
+  --rule: 220 12% 20%;
+  --rule-strong: 220 11% 30%;
+  --rule-faint: 220 14% 15%;
+
+  --accent: 172 52% 52%;
+  --accent-hover: 172 56% 62%;
+  --accent-soft: 176 30% 16%;
+  --accent-line: 174 30% 34%;
+
+  --stable: 158 44% 56%;
+  --stable-soft: 158 30% 15%;
+  --sensitive: 38 72% 60%;
+  --sensitive-soft: 36 40% 15%;
+  --fragile: 6 68% 62%;
+  --fragile-soft: 4 40% 16%;
+
+  --viz-1: 220 14% 88%;
+  --viz-2: 172 52% 52%;
+  --viz-3: 220 8% 58%;
+  --viz-4: 220 10% 34%;
+  --viz-grid: 220 12% 18%;
+
+  --shadow-1: 0 1px 2px hsl(0 0% 0% / 0.4);
+  --shadow-2: 0 1px 3px hsl(0 0% 0% / 0.5), 0 8px 24px hsl(0 0% 0% / 0.4);
+}
+
+/* Compatibility aliases.
+   The token names above are the ones to use. These map the earlier names onto
+   them so that any component not yet rewritten still picks up the new palette
+   instead of falling back to unstyled. They are defined in both themes because
+   they are plain indirections. */
+:root,
+:root[data-theme="dark"] {
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted-foreground: var(--ink-3);
+  --card: var(--surface);
+  --border: var(--rule);
+  --primary: var(--ink);
+  --primary-foreground: var(--surface);
+  --brand: var(--accent);
+  --brand-soft: var(--accent-soft);
+  --brand-text: var(--accent);
+  --success: var(--stable);
+  --success-soft: var(--stable-soft);
+  --success-text: var(--stable);
+  --warning: var(--sensitive);
+  --warning-soft: var(--sensitive-soft);
+  --warning-text: var(--sensitive);
+  --danger: var(--fragile);
+  --danger-soft: var(--fragile-soft);
+  --danger-text: var(--fragile);
+  --info: var(--accent);
+  --info-soft: var(--accent-soft);
+  --info-text: var(--accent);
+  --dataviz-primary: var(--viz-1);
+  --dataviz-support: var(--viz-2);
+}
+
+html {
+  background: hsl(var(--paper));
+}
+
 body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: hsl(var(--paper));
+  color: hsl(var(--ink));
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  line-height: 1.6;
+  line-height: 1.55;
+  letter-spacing: var(--tracking-snug);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-
-[data-numeric], [data-mono] {
+/* Every figure in this product is tabular and monospaced, so columns of
+   numbers line up on the decimal without any per-table work. */
+[data-numeric],
+[data-mono],
+.tnum {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.01em;
 }
 
-/* Focus is always visible, including when focus is moved by script. */
-[data-kit]:focus,
+/* A masked value is a fact about privacy, so it is marked, not merely typed. */
+[data-masked] {
+  font-family: var(--font-mono);
+  color: hsl(var(--ink-3));
+}
+
+/* The small caps label is the workhorse of the layout: it names a region
+   without competing with the content inside it. */
+.label {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: hsl(var(--ink-3));
+}
+
+/* Focus is always visible, including when script moves it. */
+:focus-visible,
 [data-kit]:focus-visible,
 [data-kit] :focus-visible {
-  outline: 2px solid hsl(var(--brand));
+  outline: 2px solid hsl(var(--accent));
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbars in a dense tool should take no space from the data. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--rule-strong)) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--rule-strong));
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: var(--radius-full);
+}
+
+/* The marching rule under a running stage. Defined here so both the stage
+   strip and the theatre edges use exactly the same cadence. */
+@keyframes veritas-march {
+  to { background-position: 24px 0; }
+}
+@keyframes veritas-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes veritas-rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.marching {
+  background-image: linear-gradient(90deg, hsl(var(--accent)) 50%, transparent 50%);
+  background-size: 24px 1px;
+  background-repeat: repeat-x;
+  animation: veritas-march 600ms linear infinite;
 }
 
 /* Every animation has a static end state. */
@@ -85,5 +273,7 @@ body {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
+  .marching { background-image: none; background-color: hsl(var(--accent)); }
 }

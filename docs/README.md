@@ -11,29 +11,176 @@ number. Questions can be typed or spoken in an Indian language.
 The model chooses the plan and writes the sentence. It never computes a number,
 never sees a raw record and never writes SQL.
 
-## Setup
+---
 
-Requirements: Node 20 or later, Python 3.11 or later.
+## Run it locally
+
+Setup takes about five minutes. It runs with no API keys at all: nothing is
+sent anywhere, and the ledger is generated on your machine.
+
+### 1. What you need
+
+| | Version | Check with |
+|---|---|---|
+| Node | 20 or later | `node --version` |
+| Python | 3.11, 3.12 or 3.13 | `python3 --version` |
+| Git and make | any recent version | `git --version` |
+
+Python 3.14 does not work yet: DuckDB and pyarrow have no wheels for it. If
+`python3 --version` says 3.14, install 3.13 and use `python3.13` in place of
+`python3` in step 3.
+
+On Windows, use WSL. The commands below assume macOS or Linux.
+
+### 2. Get the code
 
 ```
+git clone https://github.com/hack05-afk/Veritas.git
+cd Veritas
 npm install
-python -m venv .venv && . .venv/bin/activate
+```
+
+### 3. Python setup
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r services/query/requirements.txt
+```
+
+Keep this virtual environment active in every terminal where you run the query
+service. If your prompt does not start with `(.venv)`, run `source
+.venv/bin/activate` again.
+
+### 4. Configure
+
+```
 cp .env.example .env
 ```
 
-Generate and load a synthetic ledger, then start both services:
+The defaults are fine. `LLM_PROVIDER=fake` means the app answers from the
+fixtures instead of calling a model, which is what makes it work with no keys.
+
+### 5. Build the ledger
+
+There is no data in the repository. Generate a hundred thousand transactions
+and load them:
 
 ```
-cd services/query
-PYTHONPATH=. python -m app.synth --rows 100000 --seed 42 --out data/test_100k
-PYTHONPATH=. python -m app.loader --data data/test_100k
-cd ../.. && make dev
+make data
 ```
 
-The web app is on http://localhost:3000 and the query service on
-http://localhost:8000. With no API keys set, `LLM_PROVIDER=fake` answers from
-`fixtures/llm/fake_responses.json`, so the whole product runs offline.
+This takes about ten seconds and writes CSV and Parquet files under
+`services/query/data/test_100k`. It is deterministic: the same seed always
+produces the same ledger, which is what lets the tests check exact figures.
+
+### 6. Start it
+
+```
+make dev
+```
+
+Both services start in this one terminal. Leave it running.
+
+### 7. Check it worked
+
+In a second terminal:
+
+```
+curl http://localhost:8000/health
+```
+
+You should see `{"ok":true,"service":"query","rows":100000,"resolver_coverage":0.9701}`.
+If `rows` is `0`, step 5 did not run. Then open
+**http://localhost:3000/workspace**.
+
+---
+
+## What to try first
+
+**This matters.** With `LLM_PROVIDER=fake` there is no model, so Veritas only
+understands the 39 questions in `fixtures/llm/fake_responses.json`. Anything
+else is refused, and that refusal is correct behaviour, not a bug. Set a real
+key (below) to ask anything you like.
+
+The quickest way in is to click, not type:
+
+- The **five Ledger Pulse tiles** across the top of `/workspace`. Each one asks
+  the question that produced it.
+- The **suggested questions** in the left column.
+
+Questions that work as typed:
+
+```
+What did we spend last month?
+Who were our top five counterparties last quarter?
+How much went out through NEFT in June?
+What did we receive last quarter?
+What is the balance across all our accounts?
+Which accounts do not reconcile?
+How many transactions have no reference number or UTR?
+Find the transaction with reference 7797183088
+How much did SELECTION ELECTRONICS receive in June?
+```
+
+Ask the first one, then ask **"Compare that with the month before"** to see a
+follow-up carry the previous filters. Ask **"How much did we spend on the
+marketing category last month?"** to see a refusal: the schema has no category
+column and Veritas will not invent one.
+
+The full list of 39 is the keys of `fixtures/llm/fake_responses.json`.
+
+### Pages worth opening
+
+| Page | What it shows |
+|---|---|
+| `/` | The landing page and the ledger field |
+| `/workspace` | Ask questions and watch the working |
+| `/workspace?replay=spend_last_month` | A recorded answer, no services needed |
+| `/workspace?replay=error` | What a failure looks like |
+| `/kit` | Every design system component in every state |
+| `/benchmark` | The model comparison |
+
+The `?replay=` pages read a recorded event stream from `fixtures/events/`, so
+they work even if the query service is not running.
+
+---
+
+## Using a real model
+
+Everything above runs offline. To ask arbitrary questions, point Veritas at any
+OpenAI-compatible endpoint by editing `.env`:
+
+```
+LLM_PROVIDER=openai_compatible
+LLM_BASE_URL=https://your-endpoint/v1
+LLM_MODEL=your-model-id
+LLM_API_KEY=your-key
+```
+
+Restart `make dev`. The model is scored under a 20B parameter limit, so every
+candidate is at or under twenty billion parameters; `/benchmark` shows what each
+one scored and why one was shipped.
+
+For voice, set `SARVAM_API_KEY`. Without it the voice routes return fixture
+transcripts and a silent clip, which is enough to exercise the whole call flow.
+
+---
+
+## When something goes wrong
+
+| Symptom | Cause and fix |
+|---|---|
+| Every question is refused | Expected without a key: only the 39 fixture questions are understood. See "What to try first". |
+| `/health` shows `"rows":0` | The loader has not run. `make data`. |
+| The workspace shows an error stage | The query service is not running or has no data. Check `curl http://localhost:8000/health`. |
+| `ModuleNotFoundError: duckdb` | The virtual environment is not active, or Python is 3.14. `source .venv/bin/activate`. |
+| `pip install` fails building pyarrow | Python 3.14. Use 3.13. |
+| `Address already in use` | Port 3000 or 8000 is taken. Stop the other process, or run the two services separately with `make web` and `make query`. |
+| `make: command not found` | Install make, or run the commands inside the Makefile by hand. |
+| Pulse tiles never appear | The query service is unreachable from the web app. Check `QUERY_SERVICE_URL` in `.env`. |
+
+---
 
 ## How it fits together
 
@@ -49,7 +196,8 @@ infra/           Deploy configuration and the runbook
 ```
 
 `docs/architecture.md` has the diagram and marks the boundary between the model
-and the deterministic code.
+and the deterministic code. `infra/RUNBOOK.md` covers deployment and swapping in
+a real dataset.
 
 ## The schema, and what it does not have
 
@@ -116,12 +264,6 @@ too. `transaction_reference_id` is plaintext and searchable by design.
 
 ## The model
 
-The text model is any OpenAI-compatible endpoint, configured with
-`LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`. It is scored
-under a 20B parameter limit, so every candidate is at or under twenty billion
-parameters. `/benchmark` shows what each candidate scored and why one was
-shipped; the numbers come from `eval/benchmark.json`.
-
 The model does two jobs. It turns a question into a QueryPlan, which is
 validated against `contracts/query_plan.schema.json` before anything runs, and
 it rewrites the templated explanation. That rewrite is kept only if every digit
@@ -165,9 +307,10 @@ through a question this build answers badly.
 - Conversation state is held in memory in one process. Restarting the web app
   loses the thread of a conversation, and it does not survive more than one
   instance.
-- The evaluation numbers above come from the fixture provider, where the plans
-  are correct by construction. They measure the computation, the grounding check
-  and the guardrails, not the model's own planning accuracy. Run
-  `eval/run_eval.py` with a real key for that.
+- The evaluation numbers come from the fixture provider, where the plans are
+  correct by construction. They measure the computation, the grounding check and
+  the guardrails, not the model's own planning accuracy. Run `eval/run_eval.py`
+  with a real key for that.
 - Voice has been exercised only against fixtures. The clips in `fixtures/voice`
-  are generated tones, not recordings.
+  are generated tones, not recordings, so the spoken demo needs real audio
+  before it will transcribe correctly.

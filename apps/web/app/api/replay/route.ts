@@ -6,11 +6,11 @@
  * and &slow=1 slows it to one event a second so each stage can be watched.
  */
 import fs from "fs";
-import path from "path";
+
+import { repoFile } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 
-const REPO_ROOT = path.resolve(process.cwd(), process.cwd().endsWith("apps/web") ? "../.." : ".");
 const SAFE_NAME = /^[a-z0-9_]+$/;
 
 export async function GET(request: Request) {
@@ -21,8 +21,8 @@ export async function GET(request: Request) {
   if (!SAFE_NAME.test(name)) {
     return new Response(JSON.stringify({ detail: "unknown stream" }), { status: 404 });
   }
-  const file = path.join(REPO_ROOT, "fixtures/events", `${name}.jsonl`);
-  if (!fs.existsSync(file)) {
+  const file = repoFile(`fixtures/events/${name}.jsonl`);
+  if (!file) {
     return new Response(JSON.stringify({ detail: "unknown stream" }), { status: 404 });
   }
 

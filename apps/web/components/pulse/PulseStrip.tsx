@@ -3,11 +3,12 @@
 /**
  * Ledger Pulse.
  *
- * Five things worth knowing before anything is asked. Each tile is a shortcut
- * into the conversation: clicking it asks the question that produced it.
+ * Five things worth knowing before anything is asked, read as one row of
+ * readings rather than five cards. Each tile is a shortcut into the
+ * conversation: clicking it asks the question that produced it.
  */
 import React from "react";
-import { Skeleton, formatIndian } from "@veritas/ui";
+import { Skeleton, Sparkline, formatIndian } from "@veritas/ui";
 
 interface Pulse {
   accounts: { count: number; banks: string[]; question: string };
@@ -17,15 +18,44 @@ interface Pulse {
   spikes: { items: { subject: string; ratio: number }[]; question: string };
 }
 
-function Tile({ title, detail, question, onAsk }: {
-  title: string; detail: string; question: string; onAsk: (question: string) => void;
+/**
+ * One reading: what it is, the figure, and the words that qualify it. The
+ * optional trailing element is drawn only from values the pulse returned.
+ */
+function Tile({ label, figure, note, question, onAsk, chart, tone = "ink" }: {
+  label: string;
+  figure: React.ReactNode;
+  note: string;
+  question: string;
+  onAsk: (question: string) => void;
+  chart?: React.ReactNode;
+  tone?: "ink" | "sensitive";
 }) {
   return (
     <button type="button" data-pulse-tile onClick={() => onAsk(question)} title={question}
-      className="min-w-[210px] shrink-0 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3 text-left transition-colors duration-[var(--motion-fast)] hover:bg-[hsl(var(--brand-soft))]">
-      <span className="block text-xs text-[hsl(var(--muted-foreground))]">{title}</span>
-      <span className="mt-1 block text-sm font-medium">{detail}</span>
+      className="group flex min-w-[188px] flex-1 shrink-0 flex-col justify-between gap-1 border-r border-rule px-4 py-2 text-left transition-colors duration-[var(--motion-fast)] last:border-r-0 hover:bg-surface-sunken">
+      <span className="label">{label}</span>
+      <span className="flex items-end justify-between gap-2">
+        <span data-numeric className={`text-lg font-semibold leading-none ${tone === "sensitive" ? "text-sensitive" : "text-ink"}`}>
+          {figure}
+        </span>
+        {chart}
+      </span>
+      <span className="truncate text-2xs text-ink-3">{note}</span>
     </button>
+  );
+}
+
+/** A proportion drawn as a single hairline bar. Never taller than the type. */
+function MicroBar({ ratio, tone = "ink" }: { ratio: number; tone?: "ink" | "sensitive" }) {
+  const width = Math.max(2, Math.min(100, ratio * 100));
+  return (
+    <span aria-hidden="true" className="mb-1 block h-1 w-16 rounded-full bg-rule-faint">
+      <span
+        className={`block h-1 rounded-full ${tone === "sensitive" ? "bg-sensitive" : "bg-[hsl(var(--viz-1))]"}`}
+        style={{ width: `${width}%` }}
+      />
+    </span>
   );
 }
 
@@ -44,29 +74,51 @@ export function PulseStrip({ entityId, onAsk }: { entityId?: string; onAsk: (que
 
   if (!pulse) {
     return (
-      <div data-pulse-strip className="flex gap-2 overflow-x-auto border-b border-[hsl(var(--border))] px-6 py-3">
-        {[0, 1, 2, 3, 4].map((index) => <Skeleton key={index} className="h-14 w-[210px] shrink-0" />)}
+      <div data-pulse-strip className="flex shrink-0 overflow-x-auto border-b border-rule bg-surface">
+        {[0, 1, 2, 3, 4].map((index) => (
+          <div key={index} className="flex min-w-[188px] flex-1 flex-col gap-2 border-r border-rule px-4 py-2.5 last:border-r-0">
+            <Skeleton className="h-2 w-16" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        ))}
       </div>
     );
   }
 
   const gaps = pulse.balance_check.accounts.length;
-  const largest = pulse.largest_debits.items[0];
+  const debits = pulse.largest_debits.items;
+  const largest = debits[0];
   const spike = pulse.spikes.items[0];
 
   return (
-    <div data-pulse-strip className="flex gap-2 overflow-x-auto border-b border-[hsl(var(--border))] px-6 py-3">
-      <Tile title="Accounts" onAsk={onAsk} question={pulse.accounts.question}
-        detail={`${pulse.accounts.count} across ${pulse.accounts.banks.length} banks`} />
-      <Tile title="Balance check" onAsk={onAsk} question={pulse.balance_check.question}
-        detail={gaps ? `${gaps} with an unexplained gap` : "Every account reconciles"} />
-      <Tile title="Largest payment" onAsk={onAsk} question={pulse.largest_debits.question}
-        detail={largest ? `₹${formatIndian(largest.amount)} to ${largest.counterparty ?? "an unnamed party"}`
-                        : "No payments last month"} />
-      <Tile title="Unreferenced" onAsk={onAsk} question={pulse.unreferenced.question}
-        detail={`${formatIndian(pulse.unreferenced.count)} rows cannot be traced`} />
-      <Tile title="Spend spike" onAsk={onAsk} question={pulse.spikes.question}
-        detail={spike ? `${spike.subject} at ${spike.ratio} times usual` : "Nothing unusual last month"} />
+    <div data-pulse-strip className="flex shrink-0 overflow-x-auto border-b border-rule bg-surface">
+      <Tile label="Accounts" onAsk={onAsk} question={pulse.accounts.question}
+        figure={formatIndian(pulse.accounts.count)}
+        note={`across ${pulse.accounts.banks.length} banks`} />
+
+      <Tile label="Balance check" onAsk={onAsk} question={pulse.balance_check.question}
+        tone={gaps ? "sensitive" : "ink"}
+        figure={formatIndian(gaps)}
+        note={gaps ? "accounts with an unexplained gap" : "every account reconciles"}
+        chart={pulse.accounts.count > 0
+          ? <MicroBar ratio={gaps / pulse.accounts.count} tone={gaps ? "sensitive" : "ink"} />
+          : undefined} />
+
+      <Tile label="Largest payment" onAsk={onAsk} question={pulse.largest_debits.question}
+        figure={largest ? `₹${formatIndian(largest.amount)}` : "none"}
+        note={largest ? `to ${largest.counterparty ?? "an unnamed party"}` : "no payments last month"}
+        chart={debits.length > 1
+          ? <Sparkline values={debits.map((item) => item.amount)} width={64} height={20} highlight={0} />
+          : undefined} />
+
+      <Tile label="Unreferenced" onAsk={onAsk} question={pulse.unreferenced.question}
+        figure={formatIndian(pulse.unreferenced.count)}
+        note="rows that cannot be traced" />
+
+      <Tile label="Spend spike" onAsk={onAsk} question={pulse.spikes.question}
+        tone={spike ? "sensitive" : "ink"}
+        figure={spike ? `${spike.ratio}x` : "none"}
+        note={spike ? spike.subject : "nothing unusual last month"} />
     </div>
   );
 }

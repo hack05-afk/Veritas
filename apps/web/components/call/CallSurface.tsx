@@ -13,7 +13,7 @@ import { Button, Typewriter, Waveform } from "@veritas/ui";
 import { TruthPanel } from "@/components/truth/TruthPanel";
 import type { EvidenceRecord } from "@/components/evidence/EvidenceDrawer";
 import { writeSpeech } from "@/lib/speech/writer";
-import type { VerifiedResultPackage } from "@/lib/orchestrator/types";
+import type { QueryPlan, VerifiedResultPackage } from "@/lib/orchestrator/types";
 
 const LANGUAGE: Record<string, string> = {
   "en-IN": "English", "hi-IN": "Hindi", "ta-IN": "Tamil", "te-IN": "Telugu",
@@ -23,13 +23,14 @@ const LANGUAGE: Record<string, string> = {
 
 const CHUNK_MS = 3000;
 
-export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, onAsk, onEnd }: {
+export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, plan, onAsk, onEnd }: {
   open: boolean;
   fakeProvider: boolean;
   pkg: VerifiedResultPackage | null;
   sql?: string;
   records: EvidenceRecord[];
   filters: Record<string, unknown>;
+  plan?: QueryPlan;
   onAsk: (question: string) => void;
   onEnd: () => void;
 }) {
@@ -41,8 +42,9 @@ export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, on
   const [status, setStatus] = React.useState("Upload a clip or start speaking.");
   const spokenFor = React.useRef<string | null>(null);
 
+  /** Always a plain string map, so it composes with other headers and with fetch. */
   const providerHeader = React.useCallback(
-    () => (fakeProvider ? { "x-veritas-provider": "fake" } : {}),
+    (): Record<string, string> => (fakeProvider ? { "x-veritas-provider": "fake" } : {}),
     [fakeProvider],
   );
 
@@ -52,7 +54,7 @@ export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, on
     form.append("audio", blob, filename);
     form.append("hint_lang", "auto");
     const response = await fetch("/api/voice/transcribe", {
-      method: "POST", body: form, headers: providerHeader() as HeadersInit,
+      method: "POST", body: form, headers: providerHeader(),
     });
     if (!response.ok) { setStatus("That clip could not be transcribed."); return; }
     const body = await response.json();
@@ -125,26 +127,27 @@ export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, on
 
   return (
     <div data-call-surface
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[hsl(var(--background))] p-6">
-      <header className="flex items-center justify-between">
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper">
+      <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-4 border-b border-rule bg-surface px-4">
         <div className="flex items-center gap-3">
-          <span className="text-base font-semibold tracking-tight">Veritas</span>
+          <span className="text-sm font-semibold tracking-tight">Veritas</span>
+          <span className="label">Call</span>
           <span data-language-chip
-            className="rounded-full bg-[hsl(var(--brand-soft))] px-3 py-1 text-xs text-[hsl(var(--brand-text))]">
+            className="rounded-sm border border-accent-line bg-accent-soft px-2 py-[3px] text-2xs font-medium text-accent">
             {language ? LANGUAGE[language] ?? language : "Listening for a language"}
           </span>
         </div>
-        <Button variant="secondary" onClick={onEnd}>End call</Button>
+        <Button variant="secondary" size="sm" onClick={onEnd}>End call</Button>
       </header>
 
-      <section className="mt-8 flex flex-col items-center gap-4">
+      <section className="flex flex-col items-center gap-3 border-b border-rule px-4 py-6">
         <Waveform amplitude={amplitude} bars={40} />
-        <p className="text-sm text-[hsl(var(--muted-foreground))]">{status}</p>
+        <p className="text-xs text-ink-3">{status}</p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button variant={listening ? "secondary" : "primary"} onClick={() => setListening((on) => !on)}>
             {listening ? "Stop speaking" : "Start speaking"}
           </Button>
-          <label className="text-sm text-[hsl(var(--muted-foreground))]">
+          <label className="text-xs text-ink-3">
             <span className="mr-2">or upload a clip</span>
             <input type="file" accept="audio/*"
               onChange={(event) => {
@@ -153,16 +156,16 @@ export function CallSurface({ open, fakeProvider, pkg, sql, records, filters, on
               }} />
           </label>
         </div>
-        <audio controls src={audioSrc ?? undefined} className="mt-2 w-full max-w-md" />
+        <audio controls src={audioSrc ?? undefined} className="mt-1 w-full max-w-md" />
       </section>
 
-      <p data-live-transcript className="mt-6 min-h-6 text-center text-lg">
+      <p data-live-transcript className="border-b border-rule px-4 py-5 text-center text-lg text-ink">
         {transcript ? <Typewriter text={transcript} /> : null}
       </p>
 
-      <div className="mx-auto mt-6 w-full max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl p-4">
         {pkg && pkg.answer_value !== null ? (
-          <TruthPanel pkg={pkg} sql={sql} records={records} filters={filters} />
+          <TruthPanel pkg={pkg} sql={sql} records={records} filters={filters} plan={plan} />
         ) : null}
       </div>
     </div>

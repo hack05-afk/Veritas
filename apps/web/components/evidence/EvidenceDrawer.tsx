@@ -36,6 +36,7 @@ export function EvidenceDrawer({ records, filters, sql, onClose }: {
   onClose?: () => void;
 }) {
   const [page, setPage] = React.useState(1);
+  const [copied, setCopied] = React.useState(false);
   const pages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
   const shown = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -45,14 +46,14 @@ export function EvidenceDrawer({ records, filters, sql, onClose }: {
 
   return (
     <div data-evidence-drawer className="h-[560px] w-[560px] max-w-full">
-      <Drawer open title="Evidence" onClose={onClose}>
-        <div className="mb-4 flex flex-wrap gap-2">
+      <Drawer open title="Evidence" meta={`${records.length} rows`} onClose={onClose}>
+        <div className="mb-3 flex flex-wrap gap-1.5">
           {chips.length ? chips.map((chip) => (
-            <span key={chip} data-filter-chip><Chip>{chip}</Chip></span>
-          )) : <span data-filter-chip><Chip>No filters applied</Chip></span>}
+            <span key={chip} data-filter-chip><Chip tone="quiet">{chip}</Chip></span>
+          )) : <span data-filter-chip><Chip tone="quiet">No filters applied</Chip></span>}
         </div>
 
-        <DataTable columns={COLUMNS} rows={shown.map((record) => ({
+        <DataTable columns={COLUMNS} maxHeight="340px" rows={shown.map((record) => ({
           ...record,
           date: record.date.slice(0, 10),
           counterparty: record.counterparty ?? "Unknown",
@@ -60,20 +61,27 @@ export function EvidenceDrawer({ records, filters, sql, onClose }: {
           utr_masked: record.utr_masked ?? "",
         }))} />
 
-        <div className="mt-4 flex items-center justify-between text-xs text-[hsl(var(--muted-foreground))]">
-          <span>{records.length} rows</span>
+        <div className="mt-3 flex items-center justify-between border-t border-rule pt-2 text-2xs text-ink-3">
+          <span data-numeric>{records.length} rows</span>
           <div className="flex items-center gap-2">
             <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}
-              className="rounded-[var(--radius)] border border-[hsl(var(--border))] px-2 py-1 disabled:opacity-40">Previous</button>
-            <span>Page {page} of {pages}</span>
+              className="rounded-sm border border-rule px-2 py-1 text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40">
+              Previous
+            </button>
+            <span data-numeric>Page {page} of {pages}</span>
             <button type="button" disabled={page >= pages} onClick={() => setPage((p) => p + 1)}
-              className="rounded-[var(--radius)] border border-[hsl(var(--border))] px-2 py-1 disabled:opacity-40">Next</button>
+              className="rounded-sm border border-rule px-2 py-1 text-ink-2 hover:border-ink-3 hover:text-ink disabled:opacity-40">
+              Next
+            </button>
           </div>
         </div>
 
         {sql ? (
-          <button type="button" onClick={() => navigator.clipboard?.writeText(sql)}
-            className="mt-4 text-xs text-[hsl(var(--brand-text))]">Copy as SQL</button>
+          <button type="button"
+            onClick={() => { navigator.clipboard?.writeText(sql); setCopied(true); }}
+            className="mt-3 text-2xs text-accent hover:underline">
+            {copied ? "Copied as SQL" : "Copy as SQL"}
+          </button>
         ) : null}
       </Drawer>
     </div>

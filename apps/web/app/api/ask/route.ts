@@ -13,23 +13,18 @@ import { extractPlan, getCatalog } from "@/lib/orchestrator/extract";
 import { buildPackage, emptyPackage } from "@/lib/orchestrator/package";
 import * as state from "@/lib/orchestrator/state";
 import type { QueryPlan, TheatreEvent, VerifiedResultPackage } from "@/lib/orchestrator/types";
+import { clarificationFor, verifyPlan } from "@/lib/orchestrator/verify";
 import { provider } from "@/lib/llm/provider";
 
 export const dynamic = "force-dynamic";
 
-const CHECKS = (plan: QueryPlan) => [
-  { check: "intent is one the query service can compute", ok: true },
-  { check: "period resolves inside the data bounds", ok: Boolean(plan.filters?.period?.start) || true },
-  { check: "counterparty names exist in the catalog", ok: true },
-  { check: "no sensitive column is requested", ok: true },
-];
-
 async function runQuery(plan: QueryPlan) {
-  const base = process.env.QUERY_SERVICE_URL || "http://localhost:8000";
+  const base = (process.env.QUERY_SERVICE_URL || "http://localhost:8000").replace(/\/$/, "");
   const response = await fetch(`${base}/query`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(plan),
+    signal: AbortSignal.timeout(Number(process.env.QUERY_SERVICE_TIMEOUT_MS || 20000)),
   });
   if (!response.ok) throw new Error(`query service returned ${response.status}: ${await response.text()}`);
   return response.json();
@@ -37,7 +32,8 @@ async function runQuery(plan: QueryPlan) {
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const { conversation_id: conversationId, question, _fake_explain_override: override } = body ?? {};
+  const { conversation_id: conversationId, question, model,
+          _fake_explain_override: override } = body ?? {};
 
   if (!conversationId || !question) {
     return NextResponse.json({ detail: "conversation_id and question are required" }, { status: 400 });
@@ -49,17 +45,25 @@ export async function POST(request: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (event: TheatreEvent) =>
+      let closed = false;
+      const send = (event: TheatreEvent) => {
+        if (closed) return;
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+      };
+      const close = () => {
+        if (closed) return;
+        closed = true;
+        controller.close();
+      };
       const at = () => Math.floor(Date.now() / 1000);
 
       const finish = async (pkg: VerifiedResultPackage) => {
-        const written = await explain(pkg, override);
+        const written = await explain(pkg, override, model);
         pkg.explanation = written.explanation;
         pkg.explanation_source = written.explanation_source;
         send({ stage: "answer", state: "done", artifact: pkg, ts: at() });
         state.remember(conversationId, null, pkg);
-        controller.close();
+        close();
       };
 
       try {
@@ -68,7 +72,7 @@ export async function POST(request: Request) {
 
         send({ stage: "understand", state: "start", ts: at() });
         const catalog = await getCatalog();
-        const { plan, errors } = await extractPlan(question, catalog, previous);
+        const { plan, errors } = await extractPlan(question, catalog, previous, model);
         const decision = decide(question, plan, previous, catalog, errors);
 
         if (decision.kind !== "compute") {
@@ -84,7 +88,16 @@ export async function POST(request: Request) {
         send({ stage: "understand", state: "done", artifact: validated, ts: at() });
 
         send({ stage: "verify", state: "start", ts: at() });
-        send({ stage: "verify", state: "done", artifact: CHECKS(validated), ts: at() });
+        const checks = verifyPlan(validated, catalog);
+        send({ stage: "verify", state: "done", artifact: checks, ts: at() });
+
+        const failed = checks.filter((check) => !check.ok);
+        if (failed.length) {
+          const clarification = clarificationFor(failed, catalog);
+          send({ stage: "answer", state: "start", ts: at() });
+          await finish(emptyPackage(question, { clarification }));
+          return;
+        }
 
         send({ stage: "compute", state: "start", ts: at() });
         const result = await runQuery(validated);
@@ -110,7 +123,7 @@ export async function POST(request: Request) {
         send({ stage: "compute", state: "error", ts: at(), note: String((error as Error).message ?? error) });
         send({ stage: "answer", state: "error", ts: at(),
                note: "Nothing was computed, so no answer is shown." });
-        controller.close();
+        close();
       }
     },
   });

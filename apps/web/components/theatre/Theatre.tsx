@@ -27,24 +27,25 @@ const TITLE: Record<Stage, string> = {
 
 function Artifact({ stage, artifact }: { stage: Stage; artifact: unknown }) {
   if (artifact === undefined || artifact === null) {
-    return <p className="text-sm text-[hsl(var(--muted-foreground))]">This stage recorded nothing.</p>;
+    return <p className="text-sm text-ink-3">This stage recorded nothing.</p>;
   }
   if (stage === "verify" && Array.isArray(artifact)) {
     return (
-      <ul className="space-y-2">
+      <ul className="divide-y divide-rule-faint">
         {(artifact as { check: string; ok: boolean }[]).map((entry) => (
-          <li key={entry.check} className="flex items-start gap-2 text-sm">
-            <span className={entry.ok ? "text-[hsl(var(--success-text))]" : "text-[hsl(var(--danger-text))]"}>
+          <li key={entry.check} className="flex items-baseline gap-2.5 py-1.5 text-sm">
+            <span className={`w-14 shrink-0 text-2xs font-semibold uppercase tracking-label ${
+              entry.ok ? "text-stable" : "text-fragile"}`}>
               {entry.ok ? "Passed" : "Failed"}
             </span>
-            <span className="text-[hsl(var(--muted-foreground))]">{entry.check}</span>
+            <span className="min-w-0 text-ink-2">{entry.check}</span>
           </li>
         ))}
       </ul>
     );
   }
   return (
-    <pre data-mono className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-[var(--radius)] bg-[hsl(var(--background))] p-4 text-xs leading-relaxed">
+    <pre data-mono className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded-sm border border-rule bg-surface-sunken p-2.5 text-2xs leading-relaxed text-ink-2">
       {JSON.stringify(artifact, null, 2)}
     </pre>
   );
@@ -58,18 +59,19 @@ export function Theatre({ state }: { state: TheatreState }) {
   const shown = selected ?? latest;
 
   return (
-    <div>
-      <WorkflowTimeline details={state.details} selected={selected} onSelect={setSelected} />
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+      <WorkflowTimeline details={state.details} artifacts={state.artifacts}
+        selected={selected} onSelect={setSelected} />
 
       <section data-artifact-panel data-frozen={selected ? "true" : "false"}
-        className="mt-4 rounded-[var(--radius)] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
-        <header className="mb-3 flex items-center justify-between gap-4">
-          <h3 className="text-sm font-medium">{TITLE[shown]}</h3>
+        className="min-w-0 border-t border-rule pt-2 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+        <header className="mb-2 flex h-6 items-center justify-between gap-3">
+          <h3 className="label truncate">{TITLE[shown]}</h3>
           {selected ? (
             <button type="button" onClick={() => setSelected(null)}
-              className="text-xs text-[hsl(var(--brand-text))]">Follow along again</button>
+              className="shrink-0 text-2xs text-accent hover:underline">Follow along again</button>
           ) : (
-            <span className="text-xs text-[hsl(var(--muted-foreground))]">Select a step to hold it</span>
+            <span className="shrink-0 text-2xs text-ink-4">Select a step to hold it</span>
           )}
         </header>
         <Artifact stage={shown} artifact={state.artifacts[shown]} />

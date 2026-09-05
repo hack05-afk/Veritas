@@ -12,7 +12,7 @@ import { GridBackground, useReducedMotion } from "@veritas/ui";
 const BAR_COUNT = 300;
 const COLUMNS = 30;
 
-export default function LedgerField() {
+export default function LedgerField({ className = "h-[420px] w-full" }: { className?: string }) {
   const reduced = useReducedMotion();
   const [failed, setFailed] = React.useState(false);
   const host = React.useRef<HTMLDivElement>(null);
@@ -43,9 +43,18 @@ export default function LedgerField() {
         key.position.set(4, 9, 6);
         scene.add(key);
 
+        // The bars take their colour from the token, so the band follows the theme.
+        const token = getComputedStyle(document.documentElement)
+          .getPropertyValue("--viz-1")
+          .trim()
+          .split(/\s+/);
         const bars = new THREE.InstancedMesh(
           new THREE.BoxGeometry(0.16, 1, 0.16),
-          new THREE.MeshLambertMaterial({ color: new THREE.Color("hsl(169, 46%, 34%)") }),
+          new THREE.MeshLambertMaterial({
+            color: new THREE.Color(
+              token.length === 3 ? `hsl(${token[0]}, ${token[1]}, ${token[2]})` : "hsl(220, 14%, 18%)",
+            ),
+          }),
           BAR_COUNT,
         );
         scene.add(bars);
@@ -105,7 +114,7 @@ export default function LedgerField() {
   }, [reduced, failed]);
 
   if (reduced || failed) {
-    return <div className="h-[420px] w-full"><GridBackground /></div>;
+    return <div className={className}><GridBackground /></div>;
   }
-  return <div ref={host} className="h-[420px] w-full" aria-hidden="true" />;
+  return <div ref={host} className={className} aria-hidden="true" />;
 }

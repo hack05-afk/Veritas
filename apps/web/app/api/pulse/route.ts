@@ -7,7 +7,10 @@ export async function GET(request: Request) {
   const target = `${base}/pulse${entity ? `?entity_id=${encodeURIComponent(entity)}` : ""}`;
 
   try {
-    const response = await fetch(target, { cache: "no-store" });
+    const response = await fetch(target, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(Number(process.env.QUERY_SERVICE_TIMEOUT_MS || 20000)),
+    });
     return new Response(await response.text(), {
       status: response.status,
       headers: { "content-type": "application/json" },
